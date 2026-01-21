@@ -5,6 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ポモドーロタイマー</title>
     <meta name="description" content="シンプルで美しいポモドーロタイマー。">
+    
+    <!-- URL自動修復 & 正規化 -->
+    <link rel="canonical" href="https://pomodoro-timer-ekt.pages.dev/">
+    <script>
+        // 誤った長いURLでアクセスされた場合、即座に正しいURL表記に戻す処理
+        if (decodeURIComponent(window.location.href).includes('サマリー') || window.location.pathname.includes('%0A')) {
+            window.history.replaceState(null, '', '/');
+        }
+    </script>
+
     <meta name="google-site-verification" content="K_Ziqndl6tdPbfH96b8HzlfWEFPk9MkAWzOQ8VAzQhA" />
     <!-- PWA Settings -->
     <link rel="manifest" href="manifest.json">
@@ -691,14 +701,19 @@
                      if (this.playlist.length > 0) {
                          const item = this.playlist[this.currentIndex];
                          nameEl.textContent = item.name;
-                     } else { nameEl.textContent = "No Music"; }
+                     } else {
+                         nameEl.textContent = "No Music";
+                     }
                      if (this.audioEl && !this.audioEl.paused) { playBtn.classList.add('hidden'); pauseBtn.classList.remove('hidden'); } 
                      else { playBtn.classList.remove('hidden'); pauseBtn.classList.add('hidden'); }
                 } else if (appState.config.bgmSource === 'procedural') {
-                    bar.classList.remove('hidden'); nameEl.textContent = "Wind Noise";
+                    bar.classList.remove('hidden');
+                    nameEl.textContent = "Wind Noise";
                     if (this.isPlayingProcedural) { playBtn.classList.add('hidden'); pauseBtn.classList.remove('hidden'); } 
                     else { playBtn.classList.remove('hidden'); pauseBtn.classList.add('hidden'); }
-                } else { bar.classList.add('hidden'); }
+                } else {
+                    bar.classList.add('hidden');
+                }
             }
             toggleRepeatMode() {
                 const m = ['all', 'one', 'none']; const t = ['全曲リピート', '1曲リピート', 'リピートなし'];
@@ -1284,7 +1299,11 @@
                 }, 10);
             }
         }
-        function closeSettings() { els.modalSettings.classList.add('opacity-0'); els.modalContent.classList.add('scale-95'); setTimeout(() => els.modalSettings.classList.add('hidden'), 300); }
+        function closeSettings() { 
+            if(els.modalSettings) els.modalSettings.classList.add('opacity-0'); 
+            if(els.modalContent) els.modalContent.classList.add('scale-95'); 
+            setTimeout(() => { if(els.modalSettings) els.modalSettings.classList.add('hidden'); }, 300); 
+        }
         function toggleLongBreakContainer() { 
             if (!els.inputs.longEnabled || !els.inputs.longContainer) return;
             const e = els.inputs.longEnabled.checked; 
