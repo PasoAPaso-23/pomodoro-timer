@@ -367,6 +367,33 @@
         </div>
     </div>
 
+    <!-- About Modal (SEO Content, Hidden by default) -->
+    <div id="about-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 opacity-0 transition-opacity duration-300">
+        <div class="glass-panel w-full max-w-2xl rounded-3xl p-8 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-6 border-b border-white/20 pb-4">
+                <h1 class="text-2xl font-bold">Horizon Focus について</h1>
+                <button id="btn-close-about" class="opacity-60 hover:opacity-100 text-2xl">✕</button>
+            </div>
+            
+            <div class="about-content text-sm lg:text-base">
+                <p>Horizon Focusは、美しい風景アニメーションと環境音で、深い集中状態（フロー）をサポートするポモドーロタイマーアプリです。PC、スマートフォン、タブレットなど、あらゆるデバイスで快適にご利用いただけます。</p>
+                
+                <h3>主な機能</h3>
+                <ul>
+                    <li><strong>ポモドーロタイマー:</strong> 集中時間（25分）と休憩時間（5分）を自動で管理。</li>
+                    <li><strong>没入型テーマ:</strong> 時間経過とともに変化する「日没」や、アニメーションする「Horizon」など、視覚的にリラックスできるテーマを用意。</li>
+                    <li><strong>BGMプレイヤー:</strong> 環境音に加え、お好みの音楽ファイルを読み込んで再生可能。通知音が鳴る際は自動で音量が下がる「ダッキング機能」搭載。</li>
+                    <li><strong>マルチタスク対応:</strong> メインタイマーとは別に、サブタイマーとストップウォッチを同時並行で利用可能。</li>
+                    <li><strong>プライバシー保護:</strong> 設定や音楽ファイルはすべてお使いのブラウザ内に保存され、外部サーバーには送信されません。</li>
+                </ul>
+
+                <h3>使い方</h3>
+                <p>再生ボタンを押してタイマーを開始してください。時間が来ると通知音でお知らせします。設定ボタンから、時間配分や通知音、テーマの変更が可能です。</p>
+                <p>右下のBGMボタンから音楽の設定ができます。ローカルの音楽ファイルを追加して、自分だけのプレイリストを作成しましょう。</p>
+            </div>
+        </div>
+    </div>
+
     <!-- BGM Settings Modal -->
     <div id="bgm-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/60 backdrop-blur-sm opacity-0 transition-opacity duration-300">
         <div class="glass-panel w-full max-w-sm rounded-2xl p-6 mx-4 transform scale-95 transition-transform duration-300">
@@ -879,8 +906,11 @@
         function startSubTimer() {
             if (subState.timer.status === 'RUNNING' || subState.timer.remaining <= 0) return;
             // Lock inputs
-            document.getElementById('sub-timer-inputs').style.pointerEvents = 'none';
-            document.getElementById('sub-timer-inputs').style.opacity = '0.5';
+            const inputs = document.getElementById('sub-timer-inputs');
+            if(inputs) {
+                inputs.style.pointerEvents = 'none';
+                inputs.style.opacity = '0.5';
+            }
             subState.timer.status = 'RUNNING';
             timerWorker.postMessage({ cmd:'start', id:'sub' });
             updateSubUI();
@@ -898,10 +928,15 @@
         function resetSubTimer() {
             stopSubTimer();
             // Unlock inputs
-            document.getElementById('sub-timer-inputs').style.pointerEvents = 'auto';
-            document.getElementById('sub-timer-inputs').style.opacity = '1';
-            const m = parseInt(document.getElementById('sub-input-min').value)||0;
-            const s = parseInt(document.getElementById('sub-input-sec').value)||0;
+            const inputs = document.getElementById('sub-timer-inputs');
+            if(inputs) {
+                inputs.style.pointerEvents = 'auto';
+                inputs.style.opacity = '1';
+            }
+            const minEl = document.getElementById('sub-input-min');
+            const secEl = document.getElementById('sub-input-sec');
+            const m = minEl ? (parseInt(minEl.value)||0) : 5;
+            const s = secEl ? (parseInt(secEl.value)||0) : 0;
             subState.timer.remaining = m*60 + s;
             subState.timer.duration = subState.timer.remaining;
             updateSubTimerDisplay();
@@ -951,42 +986,59 @@
         const circleRadius = 120, circleCircumference = 2 * Math.PI * circleRadius;
         
         function updateTimerDisplay() {
+            const display = els.timerDisplay;
+            if(!display) return;
             const m = Math.floor(appState.remainingTime / 60), s = appState.remainingTime % 60;
-            els.timerDisplay.textContent = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-            document.title = `${els.timerDisplay.textContent} - Horizon Focus`;
+            display.textContent = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+            document.title = `${display.textContent} - Horizon Focus`;
             const p = appState.remainingTime / appState.totalTime;
-            els.progressRing.style.strokeDashoffset = circleCircumference * (1 - p);
+            if(els.progressRing) els.progressRing.style.strokeDashoffset = circleCircumference * (1 - p);
         }
         function updateSubTimerDisplay() {
+            const el = document.getElementById('sub-timer-display');
+            if(!el) return;
             const m = Math.floor(subState.timer.remaining / 60), s = subState.timer.remaining % 60;
-            document.getElementById('sub-timer-display').textContent = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+            el.textContent = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
         }
         function updateStopwatchDisplay() {
+            const display = document.getElementById('stopwatch-display');
+            const msEl = document.getElementById('stopwatch-ms');
+            if(!display || !msEl) return;
             const totalMs = subState.stopwatch.elapsed;
             const ms = Math.floor((totalMs % 1000) / 10);
             const s = Math.floor((totalMs / 1000) % 60);
             const m = Math.floor(totalMs / 60000);
-            document.getElementById('stopwatch-display').textContent = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-            document.getElementById('stopwatch-ms').textContent = `.${ms.toString().padStart(2,'0')}`;
+            display.textContent = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+            msEl.textContent = `.${ms.toString().padStart(2,'0')}`;
         }
 
         function updateUI() {
-            updateTimerDisplay(); els.currentSet.textContent = appState.currentSet; els.targetSet.textContent = appState.config.targetSets;
+            updateTimerDisplay(); 
+            if(els.currentSet) els.currentSet.textContent = appState.currentSet; 
+            if(els.targetSet) els.targetSet.textContent = appState.config.targetSets;
             const pm = { [PHASE.FOCUS]: "FOCUS TIME", [PHASE.SHORT_BREAK]: "SHORT BREAK", [PHASE.LONG_BREAK]: "LONG BREAK", [PHASE.COMPLETED]: "ALL COMPLETED" };
-            els.phaseLabel.textContent = pm[appState.phase];
-            if (appState.status === STATUS.RUNNING) { els.iconPlay.classList.add('hidden'); els.iconPause.classList.remove('hidden'); } else { els.iconPlay.classList.remove('hidden'); els.iconPause.classList.add('hidden'); }
+            if(els.phaseLabel) els.phaseLabel.textContent = pm[appState.phase];
+            if (appState.status === STATUS.RUNNING) { 
+                if(els.iconPlay) els.iconPlay.classList.add('hidden'); 
+                if(els.iconPause) els.iconPause.classList.remove('hidden'); 
+            } else { 
+                if(els.iconPlay) els.iconPlay.classList.remove('hidden'); 
+                if(els.iconPause) els.iconPause.classList.add('hidden'); 
+            }
             audio.updateMiniPlayer();
         }
 
         function updateSubUI() {
             const play = document.getElementById('icon-sub-play');
             const pause = document.getElementById('icon-sub-pause');
+            if(!play || !pause) return;
             if(subState.timer.status === 'RUNNING') { play.classList.add('hidden'); pause.classList.remove('hidden'); }
             else { play.classList.remove('hidden'); pause.classList.add('hidden'); }
         }
         function updateSwUI() {
             const play = document.getElementById('icon-sw-play');
             const pause = document.getElementById('icon-sw-pause');
+            if(!play || !pause) return;
             if(subState.stopwatch.status === 'RUNNING') { play.classList.add('hidden'); pause.classList.remove('hidden'); }
             else { play.classList.remove('hidden'); pause.classList.add('hidden'); }
         }
@@ -1007,8 +1059,10 @@
             // Sub Timer Inputs
             const updateSubTime = () => {
                 if(subState.timer.status !== 'STOPPED') return;
-                const m = parseInt(get('sub-input-min').value)||0;
-                const s = parseInt(get('sub-input-sec').value)||0;
+                const minEl = get('sub-input-min');
+                const secEl = get('sub-input-sec');
+                const m = minEl ? (parseInt(minEl.value)||0) : 5;
+                const s = secEl ? (parseInt(secEl.value)||0) : 0;
                 subState.timer.duration = m*60 + s;
                 subState.timer.remaining = subState.timer.duration;
                 updateSubTimerDisplay();
@@ -1023,9 +1077,13 @@
             // Sub Timer Sound
             on(get('btn-sub-settings'), 'click', (e) => {
                 e.stopPropagation();
-                get('sub-settings-popover').classList.toggle('hidden');
+                const pop = get('sub-settings-popover');
+                if(pop) pop.classList.toggle('hidden');
             });
-            on(get('btn-close-sub-settings'), 'click', () => get('sub-settings-popover').classList.add('hidden'));
+            on(get('btn-close-sub-settings'), 'click', () => {
+                const pop = get('sub-settings-popover');
+                if(pop) pop.classList.add('hidden');
+            });
             on(get('sub-sound-type'), 'change', (e) => {
                 subState.timer.sound = e.target.value;
                 audio.playNotification(e.target.value, 2);
@@ -1042,12 +1100,16 @@
 
             // Tab Switcher
             on(get('tab-timer'), 'click', () => {
-                get('tab-timer').classList.add('active'); get('tab-stopwatch').classList.remove('active');
-                get('view-sub-timer').classList.remove('hidden'); get('view-stopwatch').classList.add('hidden');
+                const tabT = get('tab-timer'); const tabS = get('tab-stopwatch');
+                const viewT = get('view-sub-timer'); const viewS = get('view-stopwatch');
+                if(tabT) tabT.classList.add('active'); if(tabS) tabS.classList.remove('active');
+                if(viewT) viewT.classList.remove('hidden'); if(viewS) viewS.classList.add('hidden');
             });
             on(get('tab-stopwatch'), 'click', () => {
-                get('tab-stopwatch').classList.add('active'); get('tab-timer').classList.remove('active');
-                get('view-stopwatch').classList.remove('hidden'); get('view-sub-timer').classList.add('hidden');
+                const tabT = get('tab-timer'); const tabS = get('tab-stopwatch');
+                const viewT = get('view-sub-timer'); const viewS = get('view-stopwatch');
+                if(tabS) tabS.classList.add('active'); if(tabT) tabT.classList.remove('active');
+                if(viewS) viewS.classList.remove('hidden'); if(viewT) viewT.classList.add('hidden');
             });
 
             // Input Validation Helper
@@ -1070,28 +1132,30 @@
             // Button Events
             on(els.btnToggle, 'click', () => appState.status === STATUS.RUNNING ? pauseTimerLogic() : startTimerLogic());
             on(els.btnReset, 'click', resetLogic);
-            on(els.btnSettings, 'click', () => { if (appState.status === STATUS.RUNNING || appState.status === STATUS.PAUSED) { if (appState.currentSet > 1 || appState.remainingTime < appState.config.focus * 60) { els.modalConfirm.classList.remove('hidden'); return; } } openSettings(); });
-            on(els.btnYesReset, 'click', () => { resetLogic(); els.modalConfirm.classList.add('hidden'); openSettings(); });
-            on(els.btnNoReset, 'click', () => els.modalConfirm.classList.add('hidden'));
+            on(els.btnSettings, 'click', () => { if (appState.status === STATUS.RUNNING || appState.status === STATUS.PAUSED) { if (appState.currentSet > 1 || appState.remainingTime < appState.config.focus * 60) { if(els.modalConfirm) els.modalConfirm.classList.remove('hidden'); return; } } openSettings(); });
+            on(els.btnYesReset, 'click', () => { resetLogic(); if(els.modalConfirm) els.modalConfirm.classList.add('hidden'); openSettings(); });
+            on(els.btnNoReset, 'click', () => { if(els.modalConfirm) els.modalConfirm.classList.add('hidden'); });
 
             // BGM Modal Events
             on(els.btnBgmSettings, 'click', () => {
-                els.inputs.bgmSource.value = appState.config.bgmSource;
-                els.inputs.bgmVolume.value = appState.config.bgmVolume;
-                els.inputs.bgmVolumeDisplay.textContent = Math.round(appState.config.bgmVolume * 100);
-                els.inputs.fileContainer.classList.toggle('hidden', appState.config.bgmSource !== 'file');
-                els.modalBgm.classList.remove('hidden');
-                setTimeout(() => els.modalBgm.classList.remove('opacity-0'), 10);
+                if(els.inputs.bgmSource) els.inputs.bgmSource.value = appState.config.bgmSource;
+                if(els.inputs.bgmVolume) els.inputs.bgmVolume.value = appState.config.bgmVolume;
+                if(els.inputs.bgmVolumeDisplay) els.inputs.bgmVolumeDisplay.textContent = Math.round(appState.config.bgmVolume * 100);
+                if(els.inputs.fileContainer) els.inputs.fileContainer.classList.toggle('hidden', appState.config.bgmSource !== 'file');
+                if(els.modalBgm) {
+                    els.modalBgm.classList.remove('hidden');
+                    setTimeout(() => els.modalBgm.classList.remove('opacity-0'), 10);
+                }
                 audio.updatePlaylistUI();
             });
             on(get('btn-close-bgm'), 'click', () => {
-                // Save BGM settings on close
                 appState.config.bgmSource = els.inputs.bgmSource.value;
                 appState.config.bgmVolume = parseFloat(els.inputs.bgmVolume.value);
                 persistence.saveConfig(appState.config);
-                
-                els.modalBgm.classList.add('opacity-0');
-                setTimeout(() => els.modalBgm.classList.add('hidden'), 300);
+                if(els.modalBgm) {
+                    els.modalBgm.classList.add('opacity-0');
+                    setTimeout(() => els.modalBgm.classList.add('hidden'), 300);
+                }
                 audio.updateMiniPlayer();
             });
 
@@ -1111,6 +1175,7 @@
 
             const toggleAbout = () => {
                 const modal = get('about-modal');
+                if (!modal) return; // Guard
                 if (modal.classList.contains('hidden')) {
                     modal.classList.remove('hidden');
                     setTimeout(() => modal.classList.remove('opacity-0'), 10);
@@ -1132,12 +1197,12 @@
             });
             on(els.inputs.bgmVolume, 'input', (e) => {
                 const vol = parseFloat(e.target.value);
-                els.inputs.bgmVolumeDisplay.textContent = Math.round(vol * 100);
+                if(els.inputs.bgmVolumeDisplay) els.inputs.bgmVolumeDisplay.textContent = Math.round(vol * 100);
                 audio.setVolume(vol);
                 appState.config.bgmVolume = vol;
             });
             
-            on(els.inputs.soundDuration, 'input', (e) => els.inputs.soundDurationDisplay.textContent = e.target.value);
+            on(els.inputs.soundDuration, 'input', (e) => { if(els.inputs.soundDurationDisplay) els.inputs.soundDurationDisplay.textContent = e.target.value; });
             on(els.btnTestSound, 'click', () => audio.playNotification(els.inputs.soundType.value, parseFloat(els.inputs.soundDuration.value)));
             on(els.inputs.desktopNotify, 'change', (e) => { if(e.target.checked && "Notification" in window) Notification.requestPermission(); });
             on(els.inputs.theme, 'change', (e) => { tempTheme = e.target.value; document.body.setAttribute('data-theme', tempTheme); updateVisualTheme(); });
@@ -1171,10 +1236,7 @@
             on(get('btn-mini-play'), 'click', (e) => { e.stopPropagation(); audio.togglePlay(); });
             on(get('btn-mini-list'), 'click', (e) => { 
                 e.stopPropagation(); 
-                els.btnBgmSettings.click(); // Open main BGM modal
-            });
-            on(get('btn-close-playlist'), 'click', () => { // Legacy cleanup if any
-                 const m = document.getElementById('playlist-modal'); if(m) m.classList.add('hidden');
+                if(els.btnBgmSettings) els.btnBgmSettings.click(); 
             });
             on(get('input-popup-audio'), 'change', (e) => audio.addFiles(e.target.files));
             on(get('btn-popup-repeat'), 'click', () => audio.toggleRepeatMode());
@@ -1185,7 +1247,17 @@
 
         function openSettings() {
             tempTheme = appState.config.theme; const c = appState.config;
-            els.inputs.theme.value = c.theme; els.inputs.focus.value = c.focus; els.inputs.short.value = c.shortBreak; els.inputs.long.value = c.longBreak; els.inputs.target.value = c.targetSets; els.inputs.freq.value = c.longBreakFreq; els.inputs.longEnabled.checked = c.longBreakEnabled; els.inputs.desktopNotify.checked = c.desktopNotify; els.inputs.soundType.value = c.soundType; els.inputs.soundDuration.value = c.soundDuration; els.inputs.soundDurationDisplay.textContent = c.soundDuration;
+            if(els.inputs.theme) els.inputs.theme.value = c.theme; 
+            if(els.inputs.focus) els.inputs.focus.value = c.focus; 
+            if(els.inputs.short) els.inputs.short.value = c.shortBreak; 
+            if(els.inputs.long) els.inputs.long.value = c.longBreak; 
+            if(els.inputs.target) els.inputs.target.value = c.targetSets; 
+            if(els.inputs.freq) els.inputs.freq.value = c.longBreakFreq; 
+            if(els.inputs.longEnabled) els.inputs.longEnabled.checked = c.longBreakEnabled; 
+            if(els.inputs.desktopNotify) els.inputs.desktopNotify.checked = c.desktopNotify; 
+            if(els.inputs.soundType) els.inputs.soundType.value = c.soundType; 
+            if(els.inputs.soundDuration) els.inputs.soundDuration.value = c.soundDuration; 
+            if(els.inputs.soundDurationDisplay) els.inputs.soundDurationDisplay.textContent = c.soundDuration;
             toggleLongBreakContainer();
             const t = els.inputs.target; const f = els.inputs.freq;
             if(t && f) {
@@ -1200,7 +1272,11 @@
                 }, 10);
             }
         }
-        function closeSettings() { els.modalSettings.classList.add('opacity-0'); els.modalContent.classList.add('scale-95'); setTimeout(() => els.modalSettings.classList.add('hidden'), 300); }
+        function closeSettings() { 
+            if(els.modalSettings) els.modalSettings.classList.add('opacity-0'); 
+            if(els.modalContent) els.modalContent.classList.add('scale-95'); 
+            setTimeout(() => { if(els.modalSettings) els.modalSettings.classList.add('hidden'); }, 300); 
+        }
         function toggleLongBreakContainer() { 
             if (!els.inputs.longEnabled || !els.inputs.longContainer) return;
             const e = els.inputs.longEnabled.checked; 
@@ -1216,7 +1292,6 @@
 
         function resize() {
             width = window.innerWidth; height = window.innerHeight; canvas.width = width; canvas.height = height;
-            // Initialize Horizon Layers
             horizonLayers = [ new Layer(0.6, 0, 0.2, height * 0.3, 200), new Layer(0.4, 1, 0.4, height * 0.2, 150), new Layer(0.2, 2, 0.8, height * 0.15, 100), new Layer(0.0, 3, 1.2, height * 0.1, 50) ];
         }
         window.addEventListener('resize', resize);
