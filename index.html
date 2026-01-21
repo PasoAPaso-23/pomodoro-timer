@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Horizon Focus</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
@@ -16,53 +16,62 @@
             --btn-primary-text: #333;
             --progress-track: rgba(255, 255, 255, 0.1);
             --progress-bar: rgba(255, 255, 255, 0.9);
+            --input-bg: rgba(0, 0, 0, 0.2);
+            --font-family: 'Montserrat', sans-serif;
+            --highlight: rgba(255, 255, 255, 0.2);
         }
 
-        /* Theme: Simple */
+        /* 1. Simple (Light) */
         [data-theme="simple"] {
             --bg-color: #f8f9fa;
             --text-color: #2d3748;
-            --panel-bg: rgba(255, 255, 255, 0.8);
+            --panel-bg: rgba(255, 255, 255, 0.9);
             --panel-border: rgba(0, 0, 0, 0.1);
             --btn-primary-bg: #2d3748;
             --btn-primary-text: white;
             --progress-track: rgba(0, 0, 0, 0.1);
             --progress-bar: #2d3748;
+            --input-bg: rgba(0, 0, 0, 0.05);
+            --highlight: rgba(0, 0, 0, 0.1);
         }
         [data-theme="simple"] #canvas-container { display: none; }
-        [data-theme="simple"] .btn-glass { 
-            background: rgba(0, 0, 0, 0.05); 
-            border-color: rgba(0,0,0,0.1);
-        }
-        [data-theme="simple"] .btn-glass:hover { background: rgba(0, 0, 0, 0.1); }
-        [data-theme="simple"] input, [data-theme="simple"] select {
-            background: rgba(0, 0, 0, 0.05);
-            border-color: rgba(0, 0, 0, 0.2);
-            color: #333;
-        }
 
-        /* Theme: Dark */
+        /* 2. Dark */
         [data-theme="dark"] {
-            --bg-color: #121212;
-            --text-color: #e2e8f0;
-            --panel-bg: rgba(255, 255, 255, 0.05);
-            --panel-border: rgba(255, 255, 255, 0.1);
+            --bg-color: #0f0f0f;
+            --text-color: #f1f5f9;
+            --panel-bg: rgba(30, 30, 30, 0.85);
+            --panel-border: rgba(255, 255, 255, 0.15);
             --btn-primary-bg: #e2e8f0;
-            --btn-primary-text: #121212;
+            --btn-primary-text: #0f0f0f;
             --progress-track: rgba(255, 255, 255, 0.1);
             --progress-bar: #e2e8f0;
+            --input-bg: rgba(0, 0, 0, 0.4);
+            --highlight: rgba(255, 255, 255, 0.1);
         }
         [data-theme="dark"] #canvas-container { display: none; }
 
+        /* 3. Sunset (Alto's Style) */
+        [data-theme="sunset"] {
+            --bg-color: #2a1b1d;
+            --text-color: #fff7ed;
+            --panel-bg: rgba(60, 20, 30, 0.4);
+            --panel-border: rgba(253, 186, 116, 0.2);
+            --btn-primary-bg: #ffedd5;
+            --btn-primary-text: #7c2d12;
+            --progress-bar: #fdba74;
+            --highlight: rgba(253, 186, 116, 0.3);
+        }
+
         body {
             margin: 0;
-            overflow: hidden;
-            font-family: 'Montserrat', sans-serif;
+            min-height: 100vh;
+            font-family: var(--font-family);
             background-color: var(--bg-color);
             color: var(--text-color);
-            user-select: none;
-            -webkit-user-select: none;
-            transition: background-color 0.5s, color 0.5s;
+            transition: background-color 0.8s, color 0.8s;
+            overflow-y: auto;
+            overflow-x: hidden;
         }
 
         #canvas-container {
@@ -73,153 +82,304 @@
             height: 100%;
             z-index: -1;
             transition: opacity 0.5s;
+            pointer-events: none;
+        }
+
+        #app {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1rem;
         }
 
         .glass-panel {
             background: var(--panel-bg);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             border: 1px solid var(--panel-border);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
             transition: all 0.3s;
         }
 
         .btn-glass {
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.1);
             border: 1px solid var(--panel-border);
             transition: all 0.3s ease;
         }
-        [data-theme="simple"] .btn-glass svg { color: #333; }
-        
-        .btn-glass:hover {
-            transform: translateY(-2px);
-        }
-        .btn-primary {
-            background: var(--btn-primary-bg);
-            color: var(--btn-primary-text);
-            font-weight: 600;
-        }
+        .btn-glass:hover { transform: translateY(-2px); background: rgba(255, 255, 255, 0.2); }
+        .btn-primary { background: var(--btn-primary-bg); color: var(--btn-primary-text); font-weight: 600; }
 
         input, select {
-            background: rgba(0, 0, 0, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: var(--input-bg);
+            border: 1px solid var(--panel-border);
             color: inherit;
             padding: 0.5rem;
             border-radius: 0.5rem;
             width: 100%;
         }
-        input:focus, select:focus {
-            outline: none;
-            border-color: rgba(100, 100, 100, 0.8);
-        }
+        input:focus, select:focus { outline: none; border-color: var(--progress-bar); background: rgba(0,0,0,0.5); }
         
-        /* Toggle Switch Animation Fix */
-        .toggle-wrapper {
-            position: relative;
-            display: inline-block;
-            width: 2.75rem;
-            height: 1.5rem;
-        }
-        .toggle-checkbox {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-        .toggle-track {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(156, 163, 175, 0.5);
-            transition: .4s;
-            border-radius: 34px;
-        }
-        .toggle-track:before {
-            position: absolute;
-            content: "";
-            height: 1.1rem;
-            width: 1.1rem;
-            left: 0.2rem;
-            bottom: 0.2rem;
-            background-color: white;
-            transition: .4s;
-            border-radius: 50%;
-        }
-        .toggle-checkbox:checked + .toggle-track {
-            background-color: #68D391;
-        }
-        .toggle-checkbox:checked + .toggle-track:before {
-            transform: translateX(1.25rem);
-        }
+        /* Toggle Switch */
+        .toggle-wrapper { position: relative; display: inline-block; width: 2.75rem; height: 1.5rem; }
+        .toggle-checkbox { opacity: 0; width: 0; height: 0; }
+        .toggle-track { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(156, 163, 175, 0.5); transition: .4s; border-radius: 34px; }
+        .toggle-track:before { position: absolute; content: ""; height: 1.1rem; width: 1.1rem; left: 0.2rem; bottom: 0.2rem; background-color: white; transition: .4s; border-radius: 50%; }
+        .toggle-checkbox:checked + .toggle-track { background-color: var(--progress-bar); }
+        .toggle-checkbox:checked + .toggle-track:before { transform: translateX(1.25rem); }
 
-        .phase-indicator {
-            letter-spacing: 0.2em;
-            text-transform: uppercase;
-            font-size: 0.85rem;
-            opacity: 0.9;
-        }
+        .phase-indicator { letter-spacing: 0.2em; text-transform: uppercase; font-size: 0.85rem; opacity: 0.9; }
 
-        /* Circular Progress */
         .progress-ring__circle {
             transition: stroke-dashoffset 1s linear;
             transform: rotate(-90deg);
             transform-origin: 50% 50%;
             stroke: var(--progress-bar);
         }
-        .progress-ring__bg {
-            stroke: var(--progress-track);
+        .progress-ring__bg { stroke: var(--progress-track); }
+
+        /* Playlist Styles */
+        .playlist-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .playlist-item:hover {
+            background: var(--input-bg);
+        }
+        .playlist-item.active {
+            background: var(--highlight);
+            border-left: 3px solid var(--progress-bar);
+            font-weight: bold;
+        }
+        .playlist-item:last-child { border-bottom: none; }
+        
+        /* Loading overlay */
+        #loading-overlay {
+            position: absolute; inset: 0; background: rgba(0,0,0,0.5);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 50; backdrop-filter: blur(2px);
+            opacity: 0; pointer-events: none; transition: opacity 0.3s;
+        }
+        #loading-overlay.visible { opacity: 1; pointer-events: auto; }
+        
+        /* BGM Mini Player */
+        #bgm-mini-player {
+            transition: all 0.3s ease;
+        }
+        #mini-track-bar {
+            width: 0%;
+            height: 100%;
+            background: var(--progress-bar);
+            opacity: 0.3;
+            position: absolute;
+            left: 0; top: 0;
+            z-index: -1;
+            transition: width 0.5s linear;
+        }
+
+        /* Sub Tool Tabs */
+        .sub-tab {
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            opacity: 0.6;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+        }
+        .sub-tab.active {
+            opacity: 1;
+            border-bottom-color: var(--progress-bar);
+            font-weight: bold;
         }
     </style>
 </head>
-<body class="h-screen w-screen flex items-center justify-center">
+<body>
 
     <div id="canvas-container">
         <canvas id="bgCanvas"></canvas>
     </div>
 
-    <div id="app" class="relative z-10 w-full max-w-md p-6 mx-4">
-        
-        <div class="glass-panel rounded-3xl p-8 text-center mb-6 relative">
+    <div id="app" class="relative z-10 w-full max-w-5xl">
+        <!-- Main Layout: Row on large, Col on mobile -->
+        <div class="flex flex-col lg:flex-row gap-6 items-start justify-center">
             
-            <!-- Circular Timer Container -->
-            <div class="relative w-64 h-64 mx-auto mb-6 flex items-center justify-center">
-                <!-- SVG Ring -->
-                <svg class="absolute top-0 left-0 w-full h-full" width="256" height="256" viewBox="0 0 256 256">
-                    <circle class="progress-ring__bg" stroke-width="6" fill="transparent" r="120" cx="128" cy="128" />
-                    <circle id="progress-ring" class="progress-ring__circle" stroke-width="6" fill="transparent" r="120" cx="128" cy="128" stroke-dasharray="753.98" stroke-dashoffset="0" stroke-linecap="round"/>
-                </svg>
-
-                <!-- Timer Text (Centered) -->
-                <div class="relative z-10 flex flex-col items-center justify-center">
-                    <div id="phase-label" class="phase-indicator mb-1 text-xs opacity-80">READY</div>
-                    <div id="timer-display" class="text-5xl font-light tracking-wider tabular-nums">25:00</div>
-                    <div class="flex items-center gap-1 mt-2 text-xs opacity-70">
-                        <span>SET</span>
-                        <span id="current-set" class="font-bold text-sm">1</span>
-                        <span>/</span>
-                        <span id="target-set">5</span>
+            <!-- LEFT: Pomodoro Timer -->
+            <div class="w-full max-w-md mx-auto lg:mx-0">
+                <div class="glass-panel rounded-3xl p-8 text-center mb-6 relative">
+                    <!-- Circular Timer -->
+                    <div class="relative w-64 h-64 mx-auto mb-6 flex items-center justify-center">
+                        <svg class="absolute top-0 left-0 w-full h-full" width="256" height="256" viewBox="0 0 256 256">
+                            <circle class="progress-ring__bg" stroke-width="6" fill="transparent" r="120" cx="128" cy="128" />
+                            <circle id="progress-ring" class="progress-ring__circle" stroke-width="6" fill="transparent" r="120" cx="128" cy="128" stroke-dasharray="753.98" stroke-dashoffset="0" stroke-linecap="round"/>
+                        </svg>
+                        <div class="relative z-10 flex flex-col items-center justify-center">
+                            <div id="phase-label" class="phase-indicator mb-1 text-xs opacity-80">READY</div>
+                            <div id="timer-display" class="text-5xl font-light tracking-wider tabular-nums">25:00</div>
+                            <div class="flex items-center gap-1 mt-2 text-xs opacity-70">
+                                <span>SET</span>
+                                <span id="current-set" class="font-bold text-sm">1</span>
+                                <span>/</span>
+                                <span id="target-set">5</span>
+                            </div>
+                        </div>
                     </div>
+
+                    <!-- BGM Mini Player -->
+                    <div id="bgm-mini-player" class="mb-6 mx-auto w-full max-w-xs bg-white/5 rounded-full border border-white/10 flex items-center justify-between p-1 pr-3 relative overflow-hidden hidden">
+                        <div id="mini-track-bar"></div>
+                        <div class="flex items-center gap-2 overflow-hidden flex-1 mr-2">
+                            <button id="btn-mini-play" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors shrink-0">
+                                <svg id="icon-mini-play" class="w-3 h-3 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                <svg id="icon-mini-pause" class="w-3 h-3 hidden" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                            </button>
+                            <div class="text-xs truncate opacity-80" id="mini-track-name">No Music</div>
+                        </div>
+                    </div>
+
+                    <!-- Controls -->
+                    <div class="flex justify-center gap-4">
+                        <button id="btn-bgm-settings" class="btn-glass rounded-full w-14 h-14 flex items-center justify-center text-xs flex-col">
+                             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+                            </svg>
+                        </button>
+
+                        <button id="btn-toggle" class="btn-primary rounded-full w-14 h-14 flex items-center justify-center shadow-lg hover:scale-105 transition-transform">
+                            <svg id="icon-play" class="w-6 h-6 ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                            <svg id="icon-pause" class="w-6 h-6 hidden" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                        </button>
+                        
+                        <button id="btn-reset" class="btn-glass rounded-full w-14 h-14 flex items-center justify-center">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M6 6h12v12H6z"/></svg>
+                        </button>
+                        
+                        <button id="btn-settings" class="btn-glass rounded-full w-14 h-14 flex items-center justify-center">
+                            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.488.488 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 0 0-.48-.41h-3.84a.484.484 0 0 0-.48.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96a.488.488 0 0 0-.59.22L2.09 8.83a.488.488 0 0 0 .12.61l2.03 1.58c-.05.3-.07.63-.07.94s.02.64.07.94l-2.03 1.58a.488.488 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.27.41.48.41h3.84c.24 0 .44-.17.48-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div id="status-message" class="text-center text-sm opacity-0 transition-opacity duration-500 h-6">設定変更はリセットが必要です</div>
+            </div>
+
+            <!-- RIGHT: Sub Tools (Timer / Stopwatch) -->
+            <div class="w-full max-w-md mx-auto lg:mx-0">
+                <div class="glass-panel rounded-3xl p-6 min-h-[350px]">
+                    <!-- Tab Switcher -->
+                    <div class="flex justify-center border-b border-white/20 mb-6">
+                        <div id="tab-timer" class="sub-tab active">Timer</div>
+                        <div id="tab-stopwatch" class="sub-tab">Stopwatch</div>
+                    </div>
+
+                    <!-- SUB TIMER VIEW -->
+                    <div id="view-sub-timer" class="block">
+                         <div class="text-center mb-8">
+                            <div id="sub-timer-display" class="text-6xl font-light tracking-wider tabular-nums mb-4">00:00</div>
+                            <!-- Input Fields -->
+                            <div class="flex justify-center gap-2 mb-4" id="sub-timer-inputs">
+                                <input type="number" id="sub-input-min" class="smart-input w-20 text-center text-lg" placeholder="min" min="0" value="5">
+                                <span class="text-2xl py-1">:</span>
+                                <input type="number" id="sub-input-sec" class="smart-input w-20 text-center text-lg" placeholder="sec" min="0" max="59" value="00">
+                            </div>
+                        </div>
+                        
+                        <div class="flex justify-center gap-4">
+                            <button id="btn-sub-toggle" class="btn-primary rounded-full w-14 h-14 flex items-center justify-center shadow-lg hover:scale-105 transition-transform">
+                                <svg id="icon-sub-play" class="w-6 h-6 ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                <svg id="icon-sub-pause" class="w-6 h-6 hidden" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                            </button>
+                            <button id="btn-sub-reset" class="btn-glass rounded-full w-14 h-14 flex items-center justify-center">
+                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M6 6h12v12H6z"/></svg>
+                            </button>
+                             <button id="btn-sub-settings" class="btn-glass rounded-full w-14 h-14 flex items-center justify-center relative">
+                                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+                            </button>
+                        </div>
+                        
+                        <!-- Mini Settings Popover for Sub Timer -->
+                        <div id="sub-settings-popover" class="hidden absolute bg-black/80 p-4 rounded-xl shadow-xl border border-white/20 mt-2 left-1/2 -translate-x-1/2 w-64 z-20 backdrop-blur-md">
+                            <div class="text-sm font-bold mb-2">通知音設定</div>
+                            <select id="sub-sound-type" class="mb-2 text-xs">
+                                <option value="crystal">Crystal</option>
+                                <option value="bowl">Singing Bowl</option>
+                                <option value="ripple">Ripple</option>
+                                <option value="bell">Bell</option>
+                            </select>
+                            <button id="btn-close-sub-settings" class="w-full text-xs bg-white/20 hover:bg-white/30 py-1 rounded">閉じる</button>
+                        </div>
+                    </div>
+
+                    <!-- STOPWATCH VIEW -->
+                    <div id="view-stopwatch" class="hidden">
+                        <div class="text-center mb-8">
+                             <div id="stopwatch-display" class="text-5xl font-light tracking-wider tabular-nums mb-2">00:00</div>
+                             <div id="stopwatch-ms" class="text-2xl opacity-60 tabular-nums">.00</div>
+                        </div>
+                        
+                        <div class="flex justify-center gap-4">
+                            <button id="btn-sw-toggle" class="btn-primary rounded-full w-14 h-14 flex items-center justify-center shadow-lg hover:scale-105 transition-transform">
+                                <svg id="icon-sw-play" class="w-6 h-6 ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                <svg id="icon-sw-pause" class="w-6 h-6 hidden" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                            </button>
+                            <button id="btn-sw-reset" class="btn-glass rounded-full w-14 h-14 flex items-center justify-center">
+                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M6 6h12v12H6z"/></svg>
+                            </button>
+                        </div>
+                    </div>
+
                 </div>
             </div>
 
-            <div class="flex justify-center gap-4">
-                <button id="btn-toggle" class="btn-primary rounded-full w-14 h-14 flex items-center justify-center shadow-lg hover:scale-105 transition-transform">
-                    <svg id="icon-play" class="w-6 h-6 ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                    <svg id="icon-pause" class="w-6 h-6 hidden" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
-                </button>
-                <button id="btn-reset" class="btn-glass rounded-full w-14 h-14 flex items-center justify-center">
-                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M6 6h12v12H6z"/></svg>
-                </button>
-                <button id="btn-settings" class="btn-glass rounded-full w-14 h-14 flex items-center justify-center">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                </button>
-            </div>
         </div>
+    </div>
 
-        <div id="status-message" class="text-center text-sm opacity-0 transition-opacity duration-500 h-6">
-            設定変更はリセットが必要です
+    <!-- BGM Settings Modal -->
+    <div id="bgm-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/60 backdrop-blur-sm opacity-0 transition-opacity duration-300">
+        <div class="glass-panel w-full max-w-sm rounded-2xl p-6 mx-4 transform scale-95 transition-transform duration-300">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold">BGM設定</h3>
+                <button id="btn-close-bgm" class="opacity-60 hover:opacity-100">✕</button>
+            </div>
+
+            <!-- BGM Source -->
+            <div class="mb-4">
+                <label class="block text-xs mb-1 opacity-80">BGMソース</label>
+                <select id="input-bgm-source" class="mb-2">
+                    <option value="none">BGMなし</option>
+                    <option value="procedural">環境音 (風)</option>
+                    <option value="file">プレイリスト (ローカル保存)</option>
+                </select>
+            </div>
+
+            <!-- Volume Slider -->
+            <div class="mb-6">
+                <label class="block text-xs mb-1 opacity-80">BGM音量: <span id="display-bgm-volume">50</span>%</label>
+                <input type="range" id="input-bgm-volume" min="0" max="1" step="0.01" value="0.5" class="w-full h-2 bg-gray-500/50 rounded-lg appearance-none cursor-pointer">
+            </div>
+            
+            <!-- Playlist UI -->
+            <div id="file-upload-container" class="hidden">
+                <div class="flex gap-2 mb-2">
+                    <label class="flex-1 cursor-pointer bg-white/10 hover:bg-white/20 text-center py-2 rounded text-xs border border-white/20 transition-colors">
+                        <span>+ ファイルを追加</span>
+                        <input type="file" id="input-popup-audio" accept="audio/*" multiple class="hidden">
+                    </label>
+                    <button id="btn-popup-repeat" class="w-1/3 bg-white/10 hover:bg-white/20 rounded text-xs border border-white/20 transition-colors">
+                        全曲リピート
+                    </button>
+                </div>
+                
+                <div id="popup-playlist-view" class="max-h-48 overflow-y-auto border border-white/10 rounded bg-black/20 p-1 mb-2 min-h-[100px]">
+                    <p class="text-xs opacity-50 text-center py-8">曲がありません</p>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -227,36 +387,31 @@
     <div id="settings-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/60 backdrop-blur-sm opacity-0 transition-opacity duration-300">
         <div class="glass-panel w-full max-w-sm rounded-2xl p-6 mx-4 transform scale-95 transition-transform duration-300 max-h-[90vh] overflow-y-auto" id="settings-content">
             <h2 class="text-xl font-bold mb-4 text-center">設定</h2>
-            
             <div class="space-y-4">
-                <!-- Theme -->
                 <div>
-                    <label class="block text-xs mb-1 opacity-80">テーマ</label>
+                    <label class="block text-xs mb-1 opacity-80">テーマ (変更でプレビュー)</label>
                     <select id="input-theme">
                         <option value="horizon">Horizon (アニメーション)</option>
                         <option value="simple">Simple (ライト)</option>
                         <option value="dark">Dark (ダーク)</option>
+                        <option value="sunset">日没 (黄昏から夜へ)</option>
                     </select>
                 </div>
-
-                <!-- Basic Timers -->
+                
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs mb-1 opacity-80">集中時間 (分)</label>
-                        <input type="number" id="input-focus" value="25" min="1" max="60">
+                        <input type="number" id="input-focus" class="smart-input" value="25" min="1" max="60" step="1">
                     </div>
                     <div>
                         <label class="block text-xs mb-1 opacity-80">目標セット数</label>
-                        <input type="number" id="input-target" value="5" min="2" max="20">
+                        <input type="number" id="input-target" class="smart-input" value="5" min="2" max="20" step="1">
                     </div>
                 </div>
-
                 <div>
                     <label class="block text-xs mb-1 opacity-80">短休憩 (分)</label>
-                    <input type="number" id="input-short" value="5" min="1" max="30">
+                    <input type="number" id="input-short" class="smart-input" value="5" min="1" max="30" step="1">
                 </div>
-
-                <!-- Long Break Section -->
                 <div class="pt-2 border-t border-gray-500/30">
                     <div class="flex items-center justify-between py-2">
                         <span class="text-sm">長休憩を有効にする</span>
@@ -265,38 +420,27 @@
                             <span class="toggle-track"></span>
                         </label>
                     </div>
-
-                    <!-- Long Break Details (Grouped) -->
                     <div id="long-break-container" class="space-y-4 transition-all duration-300 overflow-hidden" style="max-height: 200px; opacity: 1;">
                         <div class="grid grid-cols-2 gap-4 mt-2">
-                            <div>
-                                <label class="block text-xs mb-1 opacity-80">長休憩 (分)</label>
-                                <input type="number" id="input-long" value="15" min="1" max="60">
-                            </div>
+                            <div><label class="block text-xs mb-1 opacity-80">長休憩 (分)</label><input type="number" id="input-long" class="smart-input" value="15" min="1" max="60" step="1"></div>
                             <div>
                                 <label class="block text-xs mb-1 opacity-80">頻度 (セット毎)</label>
-                                <input type="number" id="input-freq" value="4" min="2">
+                                <input type="number" id="input-freq" class="smart-input" value="4" min="2" step="1">
                             </div>
                         </div>
                     </div>
                 </div>
-
-                <!-- Sound Settings -->
+                
                 <div class="pt-2 border-t border-gray-500/30">
-                    <h3 class="text-sm font-semibold mb-3 opacity-90">サウンド設定</h3>
-                    
-                    <div class="mb-4">
-                        <label class="block text-xs mb-1 opacity-80">BGMソース</label>
-                        <select id="input-bgm-source" class="mb-2">
-                            <option value="none">BGMなし</option>
-                            <option value="procedural">環境音 (風)</option>
-                            <option value="file">ローカルファイル</option>
-                        </select>
-                        
-                        <div id="file-upload-container" class="hidden">
-                            <input type="file" id="input-audio-file" accept="audio/*" class="text-xs w-full bg-white/10 rounded p-1">
-                        </div>
+                    <div class="flex items-center justify-between py-2">
+                        <span class="text-sm">デスクトップ通知</span>
+                        <label class="toggle-wrapper"><input type="checkbox" id="input-desktop-notify" class="toggle-checkbox"><span class="toggle-track"></span></label>
                     </div>
+                </div>
+                
+                <!-- Sound Settings (Notification Only) -->
+                <div class="pt-2 border-t border-gray-500/30">
+                    <h3 class="text-sm font-semibold mb-3 opacity-90">通知音設定</h3>
 
                     <div class="mb-2">
                         <label class="block text-xs mb-1 opacity-80">通知音タイプ</label>
@@ -304,28 +448,25 @@
                             <option value="crystal">Crystal (クリスタル)</option>
                             <option value="bowl">Singing Bowl (ボウル)</option>
                             <option value="ripple">Ripple (波紋)</option>
+                            <option value="gong">Gong (銅鑼)</option>
+                            <option value="piano">Piano (ピアノ)</option>
+                            <option value="bell">Bell (ベル)</option>
                         </select>
                     </div>
-
                     <div class="mt-2">
                         <label class="block text-xs mb-1 opacity-80">通知音の長さ: <span id="display-sound-duration">3</span>秒</label>
                         <input type="range" id="input-sound-duration" min="1" max="10" step="0.5" value="3" class="w-full h-2 bg-gray-500/50 rounded-lg appearance-none cursor-pointer">
                     </div>
-                    
-                    <button id="btn-test-sound" class="mt-3 w-full py-2 text-xs border border-gray-500/50 rounded hover:bg-white/10 transition-colors">
-                        通知音をテスト再生
-                    </button>
+                    <button id="btn-test-sound" class="mt-3 w-full py-2 text-xs border border-gray-500/50 rounded hover:bg-white/10 transition-colors">通知音をテスト再生</button>
                 </div>
             </div>
-
             <div class="mt-6 flex justify-end gap-3 pt-4 border-t border-gray-500/30">
                 <button id="btn-cancel-settings" class="px-4 py-2 rounded-lg hover:bg-white/10 text-sm">キャンセル</button>
                 <button id="btn-save-settings" class="px-6 py-2 btn-primary rounded-lg text-sm shadow-lg">保存</button>
             </div>
         </div>
     </div>
-
-    <!-- Confirm Reset Modal -->
+    
     <div id="confirm-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/60 backdrop-blur-sm">
         <div class="glass-panel w-full max-w-xs rounded-2xl p-6 text-center">
             <h3 class="text-lg font-bold mb-2">リセットしますか？</h3>
@@ -336,470 +477,78 @@
             </div>
         </div>
     </div>
-
-    <!-- Hidden audio element for custom file -->
-    <audio id="custom-audio-player" loop class="hidden"></audio>
+    
+    <audio id="playlist-audio" class="hidden"></audio>
+    <div id="loading-overlay" class="rounded"><span class="text-white text-xs">処理中...</span></div>
 
     <script>
-        /**
-         * WORKER SCRIPT (Background Timer)
-         */
+        // Updated Worker Blob for Multi-Timer
         const workerBlob = new Blob([`
-            let timerId;
+            let timers = {};
             self.onmessage = function(e) {
-                if (e.data === 'start') {
-                    if (timerId) clearInterval(timerId);
-                    timerId = setInterval(() => postMessage('tick'), 1000);
-                } else if (e.data === 'stop') {
-                    clearInterval(timerId);
-                    timerId = null;
+                const { cmd, id } = e.data;
+                if (cmd === 'start') {
+                    if (timers[id]) clearInterval(timers[id]);
+                    // Main tick interval
+                    timers[id] = setInterval(() => postMessage({ event: 'tick', id: id }), 1000);
+                } else if (cmd === 'stop') {
+                    if (timers[id]) clearInterval(timers[id]);
+                    delete timers[id];
                 }
             };
         `], { type: 'application/javascript' });
-        const workerUrl = URL.createObjectURL(workerBlob);
-        const timerWorker = new Worker(workerUrl);
+        const timerWorker = new Worker(URL.createObjectURL(workerBlob));
 
-        /**
-         * SOUND ENGINE
-         */
-        class SoundEngine {
+        // --- Data Persistence (LocalStorage & IndexedDB) ---
+        const DB_CONFIG = { name: 'HorizonFocusDB', version: 1, store: 'playlist' };
+        
+        class PersistenceManager {
             constructor() {
-                this.ctx = null;
-                this.bgmNodes = [];
-                this.bgmGain = null;
-                this.fileAudio = document.getElementById('custom-audio-player');
-                this.isPlayingProcedural = false;
+                this.db = null;
+                this.initDB();
             }
+            saveConfig(config) { try { localStorage.setItem('horizon_config', JSON.stringify(config)); } catch(e) {} }
+            loadConfig() { try { return JSON.parse(localStorage.getItem('horizon_config')); } catch(e) { return null; } }
+            // New: Save SubTool Config
+            saveSubConfig(config) { try { localStorage.setItem('horizon_sub_config', JSON.stringify(config)); } catch(e) {} }
+            loadSubConfig() { try { return JSON.parse(localStorage.getItem('horizon_sub_config')); } catch(e) { return null; } }
 
-            init() {
-                if (!this.ctx) {
-                    const AudioContext = window.AudioContext || window.webkitAudioContext;
-                    this.ctx = new AudioContext();
-                }
-                if (this.ctx.state === 'suspended') {
-                    this.ctx.resume();
-                }
+            initDB() {
+                const request = indexedDB.open(DB_CONFIG.name, DB_CONFIG.version);
+                request.onupgradeneeded = (e) => {
+                    const db = e.target.result;
+                    if (!db.objectStoreNames.contains(DB_CONFIG.store)) db.createObjectStore(DB_CONFIG.store, { keyPath: 'id', autoIncrement: true });
+                };
+                request.onsuccess = (e) => { this.db = e.target.result; audio.loadPlaylistFromDB(); };
             }
-
-            startBGM(sourceType) {
-                this.init();
-                this.stopBGM();
-
-                if (sourceType === 'procedural') {
-                    this.playProceduralBGM();
-                } else if (sourceType === 'file') {
-                    if (this.fileAudio.src) {
-                        this.fileAudio.play().catch(e => console.log('Audio Play blocked', e));
-                    }
-                }
+            async saveFile(file) {
+                if (!this.db) return;
+                return new Promise((resolve) => {
+                    const tx = this.db.transaction([DB_CONFIG.store], 'readwrite');
+                    tx.objectStore(DB_CONFIG.store).add({ name: file.name, type: file.type, blob: file });
+                    tx.oncomplete = () => resolve();
+                });
             }
-
-            stopBGM() {
-                if (this.isPlayingProcedural && this.bgmGain) {
-                    const now = this.ctx.currentTime;
-                    this.bgmGain.gain.setValueAtTime(this.bgmGain.gain.value, now);
-                    this.bgmGain.gain.exponentialRampToValueAtTime(0.001, now + 1);
-                    setTimeout(() => {
-                        this.bgmNodes.forEach(n => { try { n.stop(); n.disconnect(); } catch(e){} });
-                        this.bgmNodes = [];
-                        this.isPlayingProcedural = false;
-                    }, 1000);
-                }
-                this.fileAudio.pause();
-                this.fileAudio.currentTime = 0;
+            async deleteFile(id) {
+                if (!this.db) return;
+                return new Promise((resolve) => {
+                    const tx = this.db.transaction([DB_CONFIG.store], 'readwrite');
+                    tx.objectStore(DB_CONFIG.store).delete(id);
+                    tx.oncomplete = () => resolve();
+                });
             }
-
-            playProceduralBGM() {
-                if (this.isPlayingProcedural) return;
-                this.isPlayingProcedural = true;
-
-                this.bgmGain = this.ctx.createGain();
-                this.bgmGain.gain.setValueAtTime(0, this.ctx.currentTime);
-                this.bgmGain.gain.linearRampToValueAtTime(0.3, this.ctx.currentTime + 3);
-                this.bgmGain.connect(this.ctx.destination);
-
-                const bufferSize = 2 * this.ctx.sampleRate;
-                const noiseBuffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
-                const output = noiseBuffer.getChannelData(0);
-                let lastOut = 0;
-                for (let i = 0; i < bufferSize; i++) {
-                    const white = Math.random() * 2 - 1;
-                    output[i] = (lastOut + (0.02 * white)) / 1.02;
-                    lastOut = output[i];
-                    output[i] *= 3.5; 
-                }
-                const noise = this.ctx.createBufferSource();
-                noise.buffer = noiseBuffer;
-                noise.loop = true;
-                const noiseFilter = this.ctx.createBiquadFilter();
-                noiseFilter.type = 'lowpass';
-                noiseFilter.frequency.value = 400;
-                const lfo = this.ctx.createOscillator();
-                lfo.frequency.value = 0.15;
-                const lfoGain = this.ctx.createGain();
-                lfoGain.gain.value = 300;
-                lfo.connect(lfoGain);
-                lfoGain.connect(noiseFilter.frequency);
-                noise.connect(noiseFilter);
-                noiseFilter.connect(this.bgmGain);
-                noise.start();
-                lfo.start();
-                this.bgmNodes.push(noise, lfo);
-            }
-
-            playNotification(type, durationSec) {
-                this.init();
-                const now = this.ctx.currentTime;
-                const dur = Math.max(1, durationSec);
-
-                if (type === 'crystal') {
-                    this.makeSound(now, dur, 523.25, 'sine', 1046, 0.1);
-                } else if (type === 'bowl') {
-                    this.makeSound(now, dur * 1.5, 180, 'sine', 182, 0.5);
-                    this.makeSound(now, dur * 1.5, 540, 'sine', 540, 0.2);
-                } else if (type === 'ripple') {
-                    [0, 0.2, 0.4].forEach((delay, i) => {
-                        this.makeSound(now + delay, dur, 880 + (i*200), 'triangle', 880, 0.05);
-                    });
-                }
-            }
-
-            makeSound(startTime, duration, freq, type, modFreq, volume) {
-                const osc = this.ctx.createOscillator();
-                osc.type = type;
-                osc.frequency.setValueAtTime(freq, startTime);
-                osc.frequency.exponentialRampToValueAtTime(modFreq, startTime + 0.1);
-
-                const gain = this.ctx.createGain();
-                gain.gain.setValueAtTime(0, startTime);
-                gain.gain.linearRampToValueAtTime(volume, startTime + 0.1);
-                gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
-
-                osc.connect(gain);
-                gain.connect(this.ctx.destination);
-                osc.start(startTime);
-                osc.stop(startTime + duration + 1);
+            async getAllFiles() {
+                if (!this.db) return [];
+                return new Promise((resolve) => {
+                    const tx = this.db.transaction([DB_CONFIG.store], 'readonly');
+                    const req = tx.objectStore(DB_CONFIG.store).getAll();
+                    req.onsuccess = () => resolve(req.result);
+                });
             }
         }
+        const persistence = new PersistenceManager();
 
-        const audio = new SoundEngine();
-
-        /**
-         * STATE & LOGIC
-         */
-        const PRESETS = {
-            focus: 25, shortBreak: 5, longBreak: 15,
-            targetSets: 5, longBreakEnabled: true, longBreakFreq: 4,
-            bgmSource: 'none', 
-            soundType: 'crystal',
-            soundDuration: 3,
-            theme: 'horizon'
-        };
-
-        const PHASE = { FOCUS: 'FOCUS', SHORT_BREAK: 'SHORT_BREAK', LONG_BREAK: 'LONG_BREAK', COMPLETED: 'COMPLETED' };
-        const STATUS = { STOPPED: 'STOPPED', RUNNING: 'RUNNING', PAUSED: 'PAUSED' };
-
-        const appState = {
-            config: { ...PRESETS },
-            status: STATUS.STOPPED,
-            phase: PHASE.FOCUS,
-            currentSet: 1,
-            remainingTime: PRESETS.focus * 60,
-            totalTime: PRESETS.focus * 60 // For progress calculation
-        };
-
-        function switchPhase() {
-            audio.playNotification(appState.config.soundType, appState.config.soundDuration);
-
-            if (appState.phase === PHASE.FOCUS) {
-                if (appState.currentSet >= appState.config.targetSets) {
-                    completeAll();
-                    return;
-                }
-                const isLong = appState.config.longBreakEnabled && (appState.currentSet % appState.config.longBreakFreq === 0);
-                appState.phase = isLong ? PHASE.LONG_BREAK : PHASE.SHORT_BREAK;
-                const duration = (isLong ? appState.config.longBreak : appState.config.shortBreak) * 60;
-                appState.remainingTime = duration;
-                appState.totalTime = duration;
-            } else {
-                appState.currentSet++;
-                appState.phase = PHASE.FOCUS;
-                const duration = appState.config.focus * 60;
-                appState.remainingTime = duration;
-                appState.totalTime = duration;
-            }
-            updateUI();
-            updateVisualTheme();
-        }
-
-        function completeAll() {
-            stopTimerLogic();
-            appState.phase = PHASE.COMPLETED;
-            appState.remainingTime = 0;
-            appState.totalTime = 1; // Avoid divide by zero
-            updateUI();
-            updateVisualTheme();
-        }
-
-        timerWorker.onmessage = function(e) {
-            if (e.data === 'tick') {
-                if (appState.remainingTime > 0) {
-                    appState.remainingTime--;
-                    updateTimerDisplay();
-                } else {
-                    switchPhase();
-                }
-            }
-        };
-
-        function startTimerLogic() {
-            if (appState.status === STATUS.RUNNING) return;
-            audio.init();
-            if (appState.config.bgmSource !== 'none') {
-                audio.startBGM(appState.config.bgmSource);
-            }
-            if (appState.phase === PHASE.COMPLETED) resetLogic();
-            appState.status = STATUS.RUNNING;
-            timerWorker.postMessage('start');
-            updateUI();
-        }
-
-        function pauseTimerLogic() {
-            appState.status = STATUS.PAUSED;
-            timerWorker.postMessage('stop');
-            audio.stopBGM();
-            updateUI();
-        }
-
-        function stopTimerLogic() {
-            appState.status = STATUS.STOPPED;
-            timerWorker.postMessage('stop');
-            audio.stopBGM();
-        }
-
-        function resetLogic() {
-            stopTimerLogic();
-            appState.phase = PHASE.FOCUS;
-            appState.currentSet = 1;
-            appState.remainingTime = appState.config.focus * 60;
-            appState.totalTime = appState.config.focus * 60;
-            updateUI();
-            updateVisualTheme();
-        }
-
-        /**
-         * UI & SETTINGS
-         */
-        const els = {
-            timerDisplay: document.getElementById('timer-display'),
-            phaseLabel: document.getElementById('phase-label'),
-            currentSet: document.getElementById('current-set'),
-            targetSet: document.getElementById('target-set'),
-            progressRing: document.getElementById('progress-ring'),
-            
-            btnToggle: document.getElementById('btn-toggle'),
-            iconPlay: document.getElementById('icon-play'),
-            iconPause: document.getElementById('icon-pause'),
-            btnReset: document.getElementById('btn-reset'),
-            btnSettings: document.getElementById('btn-settings'),
-            
-            modalSettings: document.getElementById('settings-modal'),
-            modalContent: document.getElementById('settings-content'),
-            modalConfirm: document.getElementById('confirm-modal'),
-            
-            inputs: {
-                theme: document.getElementById('input-theme'),
-                focus: document.getElementById('input-focus'),
-                short: document.getElementById('input-short'),
-                long: document.getElementById('input-long'),
-                target: document.getElementById('input-target'),
-                freq: document.getElementById('input-freq'),
-                longEnabled: document.getElementById('input-long-enabled'),
-                longContainer: document.getElementById('long-break-container'),
-                bgmSource: document.getElementById('input-bgm-source'),
-                fileContainer: document.getElementById('file-upload-container'),
-                audioFile: document.getElementById('input-audio-file'),
-                soundType: document.getElementById('input-sound-type'),
-                soundDuration: document.getElementById('input-sound-duration'),
-                soundDurationDisplay: document.getElementById('display-sound-duration')
-            },
-            btnSave: document.getElementById('btn-save-settings'),
-            btnCancel: document.getElementById('btn-cancel-settings'),
-            btnYesReset: document.getElementById('btn-yes-reset'),
-            btnNoReset: document.getElementById('btn-no-reset'),
-            btnTestSound: document.getElementById('btn-test-sound')
-        };
-
-        function formatTime(s) {
-            return `${Math.floor(s/60).toString().padStart(2,'0')}:${(s%60).toString().padStart(2,'0')}`;
-        }
-
-        // Circle Params
-        const circleRadius = 120;
-        const circleCircumference = 2 * Math.PI * circleRadius;
-        // els.progressRing.style.strokeDasharray = `${circleCircumference} ${circleCircumference}`;
-
-        function updateTimerDisplay() {
-            els.timerDisplay.textContent = formatTime(appState.remainingTime);
-            document.title = `${formatTime(appState.remainingTime)} - Horizon Focus`;
-
-            // Progress Ring Calculation
-            const progress = appState.remainingTime / appState.totalTime;
-            const offset = circleCircumference * (1 - progress);
-            els.progressRing.style.strokeDashoffset = offset;
-        }
-
-        function updateUI() {
-            updateTimerDisplay();
-            els.currentSet.textContent = appState.currentSet;
-            els.targetSet.textContent = appState.config.targetSets;
-            
-            const phaseMap = {
-                [PHASE.FOCUS]: "FOCUS TIME",
-                [PHASE.SHORT_BREAK]: "SHORT BREAK",
-                [PHASE.LONG_BREAK]: "LONG BREAK",
-                [PHASE.COMPLETED]: "ALL COMPLETED"
-            };
-            els.phaseLabel.textContent = phaseMap[appState.phase];
-
-            if (appState.status === STATUS.RUNNING) {
-                els.iconPlay.classList.add('hidden');
-                els.iconPause.classList.remove('hidden');
-            } else {
-                els.iconPlay.classList.remove('hidden');
-                els.iconPause.classList.add('hidden');
-            }
-        }
-
-        // Events
-        els.btnToggle.addEventListener('click', () => {
-            appState.status === STATUS.RUNNING ? pauseTimerLogic() : startTimerLogic();
-        });
-        els.btnReset.addEventListener('click', resetLogic);
-        
-        els.btnSettings.addEventListener('click', () => {
-            if (appState.status === STATUS.RUNNING || appState.status === STATUS.PAUSED) {
-                if (appState.currentSet > 1 || appState.remainingTime < appState.config.focus * 60) {
-                    els.modalConfirm.classList.remove('hidden');
-                    return;
-                }
-            }
-            openSettings();
-        });
-
-        els.btnYesReset.addEventListener('click', () => {
-            resetLogic();
-            els.modalConfirm.classList.add('hidden');
-            openSettings();
-        });
-        els.btnNoReset.addEventListener('click', () => els.modalConfirm.classList.add('hidden'));
-
-        els.inputs.bgmSource.addEventListener('change', (e) => {
-            els.inputs.fileContainer.classList.toggle('hidden', e.target.value !== 'file');
-        });
-
-        els.inputs.audioFile.addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const url = URL.createObjectURL(file);
-                audio.fileAudio.src = url;
-            }
-        });
-
-        els.inputs.soundDuration.addEventListener('input', (e) => {
-            els.inputs.soundDurationDisplay.textContent = e.target.value;
-        });
-
-        els.btnTestSound.addEventListener('click', () => {
-            const type = els.inputs.soundType.value;
-            const dur = parseFloat(els.inputs.soundDuration.value);
-            audio.playNotification(type, dur);
-        });
-
-        function openSettings() {
-            els.inputs.theme.value = appState.config.theme;
-            els.inputs.focus.value = appState.config.focus;
-            els.inputs.short.value = appState.config.shortBreak;
-            els.inputs.long.value = appState.config.longBreak;
-            els.inputs.target.value = appState.config.targetSets;
-            els.inputs.freq.value = appState.config.longBreakFreq;
-            els.inputs.longEnabled.checked = appState.config.longBreakEnabled;
-            els.inputs.bgmSource.value = appState.config.bgmSource;
-            els.inputs.soundType.value = appState.config.soundType;
-            els.inputs.soundDuration.value = appState.config.soundDuration;
-            els.inputs.soundDurationDisplay.textContent = appState.config.soundDuration;
-
-            els.inputs.fileContainer.classList.toggle('hidden', appState.config.bgmSource !== 'file');
-            toggleLongBreakContainer();
-            
-            els.modalSettings.classList.remove('hidden');
-            setTimeout(() => {
-                els.modalSettings.classList.remove('opacity-0');
-                els.modalContent.classList.remove('scale-95');
-            }, 10);
-        }
-
-        els.btnSave.addEventListener('click', () => {
-            const newConfig = {
-                theme: els.inputs.theme.value,
-                focus: parseInt(els.inputs.focus.value),
-                shortBreak: parseInt(els.inputs.short.value),
-                longBreak: parseInt(els.inputs.long.value),
-                targetSets: parseInt(els.inputs.target.value),
-                longBreakFreq: parseInt(els.inputs.freq.value),
-                longBreakEnabled: els.inputs.longEnabled.checked,
-                bgmSource: els.inputs.bgmSource.value,
-                soundType: els.inputs.soundType.value,
-                soundDuration: parseFloat(els.inputs.soundDuration.value)
-            };
-
-            if (newConfig.targetSets < 2) newConfig.targetSets = 2;
-            if (newConfig.longBreakFreq >= newConfig.targetSets) newConfig.longBreakFreq = newConfig.targetSets - 1;
-
-            appState.config = newConfig;
-            
-            document.body.setAttribute('data-theme', appState.config.theme);
-            if (appState.config.theme === 'horizon') resize();
-
-            if (appState.status === STATUS.STOPPED) {
-                appState.remainingTime = appState.config.focus * 60;
-                appState.totalTime = appState.config.focus * 60;
-                updateTimerDisplay();
-            }
-            updateUI();
-            
-            els.modalSettings.classList.add('opacity-0');
-            els.modalContent.classList.add('scale-95');
-            setTimeout(() => els.modalSettings.classList.add('hidden'), 300);
-        });
-        
-        els.btnCancel.addEventListener('click', () => {
-            els.modalSettings.classList.add('opacity-0');
-            els.modalContent.classList.add('scale-95');
-            setTimeout(() => els.modalSettings.classList.add('hidden'), 300);
-        });
-
-        els.inputs.longEnabled.addEventListener('change', toggleLongBreakContainer);
-        function toggleLongBreakContainer() {
-            const enabled = els.inputs.longEnabled.checked;
-            if (enabled) {
-                els.inputs.longContainer.style.maxHeight = '200px';
-                els.inputs.longContainer.style.opacity = '1';
-                els.inputs.longContainer.style.pointerEvents = 'auto';
-            } else {
-                els.inputs.longContainer.style.maxHeight = '0px';
-                els.inputs.longContainer.style.opacity = '0';
-                els.inputs.longContainer.style.pointerEvents = 'none';
-            }
-        }
-
-        /**
-         * VISUALS (CANVAS)
-         */
-        const canvas = document.getElementById('bgCanvas');
-        const ctx = canvas.getContext('2d');
-        let width, height;
-        
+        // --- Visual Constants ---
         const PALETTES = {
             FOCUS: { skyTop: '#4e95a5', skyBottom: '#f5cba7', mountains: ['#2c6e80', '#255866', '#1a404b', '#122c34'] },
             SHORT_BREAK: { skyTop: '#4b3f72', skyBottom: '#ff9a8b', mountains: ['#423864', '#362d53', '#2a2241', '#1e1830'] },
@@ -807,74 +556,608 @@
             COMPLETED: { skyTop: '#76b852', skyBottom: '#8dc26f', mountains: ['#5a8f3d', '#497531', '#375924', '#263d18'] }
         };
 
+        class Layer {
+            constructor(yOffset, colorIndex, speed, amplitude, noise) { this.yOffset = yOffset; this.colorIndex = colorIndex; this.speed = speed; this.amplitude = amplitude; this.noise = noise; this.offset = 0; this.points = []; this.initPoints(); }
+            initPoints() { this.points = []; let width = window.innerWidth; let x = 0; while(x < width + 500) { const s = 50 + Math.random() * this.noise; const y = (window.innerHeight * (1 - this.yOffset)) - (Math.random() * this.amplitude); this.points.push({x, y}); x += s; } }
+            update(width, height) { this.offset -= this.speed; if (this.points[0].x + this.offset < -200) { const f = this.points.shift(), l = this.points[this.points.length - 1], s = 50 + Math.random() * this.noise; f.x = l.x + s; f.y = (height * (1 - this.yOffset)) - (Math.random() * this.amplitude); this.points.push(f); } }
+            draw(ctx, palette, width, height) { ctx.fillStyle = palette.mountains[this.colorIndex]; ctx.beginPath(); ctx.moveTo(this.points[0].x + this.offset, height); this.points.forEach(p => ctx.lineTo(p.x + this.offset, p.y)); ctx.lineTo(this.points[this.points.length - 1].x + this.offset, height); ctx.fill(); }
+        }
+
+        // --- Sound Engine ---
+        class SoundEngine {
+            constructor() { 
+                this.ctx = null; this.bgmNodes = []; this.bgmGain = null; this.isPlayingProcedural = false;
+                this.playlist = []; this.currentIndex = 0; this.repeatMode = 'all'; 
+                this.masterVolume = 0.5; // Default BGM Volume
+                this.audioEl = document.getElementById('playlist-audio');
+                if(this.audioEl) {
+                    this.audioEl.addEventListener('ended', () => this.playNext());
+                    this.audioEl.volume = this.masterVolume;
+                }
+            }
+            init() { if (!this.ctx) { const AC = window.AudioContext || window.webkitAudioContext; this.ctx = new AC(); } if (this.ctx.state === 'suspended') this.ctx.resume(); }
+            
+            async loadPlaylistFromDB() { this.playlist = await persistence.getAllFiles(); this.updatePlaylistUI(); }
+            async addFiles(fileList) {
+                document.getElementById('loading-overlay').classList.add('visible');
+                for (let f of fileList) { if (f.type.startsWith('audio/')) await persistence.saveFile(f); }
+                await this.loadPlaylistFromDB();
+                document.getElementById('loading-overlay').classList.remove('visible');
+            }
+            async removeFile(index) {
+                const item = this.playlist[index];
+                if (item && item.id) { await persistence.deleteFile(item.id); this.playlist.splice(index, 1); if(this.currentIndex >= this.playlist.length) this.currentIndex = 0; this.updatePlaylistUI(); }
+            }
+            updatePlaylistUI() {
+                const c = document.getElementById('popup-playlist-view');
+                if (!c) return;
+                if (this.playlist.length === 0) { c.innerHTML = '<p class="text-xs opacity-50 text-center py-8">曲がありません</p>'; this.updateMiniPlayer(); return; }
+                let h = '';
+                this.playlist.forEach((item, i) => { 
+                    const active = i === this.currentIndex ? 'active' : '';
+                    const icon = (active && !this.audioEl.paused) ? '▶' : '♪';
+                    h += `<div class="playlist-item ${active}" onclick="audio.playTrack(${i})"><span class="mr-2 text-[10px]">${icon}</span><span class="truncate flex-1 cursor-pointer">${item.name}</span><button onclick="event.stopPropagation(); audio.removeFile(${i})" class="text-red-400 ml-2 px-1">×</button></div>`; 
+                });
+                c.innerHTML = h;
+                this.updateMiniPlayer();
+            }
+            updateMiniPlayer() {
+                const nameEl = document.getElementById('mini-track-name');
+                const playBtn = document.getElementById('icon-mini-play');
+                const pauseBtn = document.getElementById('icon-mini-pause');
+                const bar = document.getElementById('bgm-mini-player');
+                
+                if(!nameEl || !bar) return; 
+
+                if (appState.config.bgmSource === 'file') {
+                     bar.classList.remove('hidden');
+                     if (this.playlist.length > 0) {
+                         const item = this.playlist[this.currentIndex];
+                         nameEl.textContent = item.name;
+                     } else {
+                         nameEl.textContent = "No Music";
+                     }
+                     if (this.audioEl && !this.audioEl.paused) { playBtn.classList.add('hidden'); pauseBtn.classList.remove('hidden'); } 
+                     else { playBtn.classList.remove('hidden'); pauseBtn.classList.add('hidden'); }
+                } else if (appState.config.bgmSource === 'procedural') {
+                    bar.classList.remove('hidden');
+                    nameEl.textContent = "Wind Noise";
+                    if (this.isPlayingProcedural) { playBtn.classList.add('hidden'); pauseBtn.classList.remove('hidden'); } 
+                    else { playBtn.classList.remove('hidden'); pauseBtn.classList.add('hidden'); }
+                } else {
+                    bar.classList.add('hidden');
+                }
+            }
+            toggleRepeatMode() {
+                const m = ['all', 'one', 'none']; const t = ['全曲リピート', '1曲リピート', 'リピートなし'];
+                let i = m.indexOf(this.repeatMode); i = (i + 1) % m.length; this.repeatMode = m[i];
+                const btn = document.getElementById('btn-popup-repeat');
+                if(btn) btn.textContent = t[i];
+            }
+            
+            setVolume(val) {
+                this.masterVolume = Math.max(0, Math.min(1, parseFloat(val)));
+                if(this.audioEl) this.audioEl.volume = this.masterVolume;
+                if(this.bgmGain) this.bgmGain.gain.setValueAtTime(this.masterVolume * 0.3, this.ctx.currentTime);
+            }
+
+            playTrack(i) {
+                if (i < 0 || i >= this.playlist.length) return;
+                this.currentIndex = i; 
+                const item = this.playlist[i];
+                if (this.audioEl.src) URL.revokeObjectURL(this.audioEl.src);
+                this.audioEl.src = URL.createObjectURL(item.blob);
+                this.updatePlaylistUI();
+                if (appState.status === STATUS.RUNNING && appState.config.bgmSource === 'file') this.audioEl.play().catch(()=>{});
+                else if (appState.config.bgmSource === 'file') this.audioEl.play().catch(()=>{}); 
+            }
+            playNext() {
+                if (this.repeatMode === 'one') { this.audioEl.currentTime = 0; this.audioEl.play(); return; }
+                let n = this.currentIndex + 1;
+                if (n >= this.playlist.length) { if (this.repeatMode === 'all') n = 0; else return; }
+                this.playTrack(n);
+            }
+            togglePlay() {
+                if (appState.config.bgmSource === 'file') {
+                    if (this.audioEl.paused) {
+                        if (!this.audioEl.src && this.playlist.length > 0) this.playTrack(this.currentIndex);
+                        else this.audioEl.play();
+                    } else { this.audioEl.pause(); }
+                } else if (appState.config.bgmSource === 'procedural') {
+                    if (this.isPlayingProcedural) this.stopBGM(false); else this.playProceduralBGM();
+                }
+                this.updateMiniPlayer();
+            }
+
+            duckBGM(dur) {
+                const fadeT = 0.5; 
+                const duckVol = this.masterVolume * 0.2; 
+                
+                if (this.isPlayingProcedural && this.bgmGain) {
+                    const n = this.ctx.currentTime;
+                    const baseGain = this.masterVolume * 0.3;
+                    this.bgmGain.gain.cancelScheduledValues(n);
+                    this.bgmGain.gain.setValueAtTime(this.bgmGain.gain.value, n);
+                    this.bgmGain.gain.linearRampToValueAtTime(duckVol * 0.3, n + fadeT);
+                    this.bgmGain.gain.linearRampToValueAtTime(baseGain, n + dur);
+                }
+                
+                if (this.audioEl && !this.audioEl.paused) {
+                    this.audioEl.volume = duckVol;
+                    setTimeout(() => { if(this.audioEl) this.audioEl.volume = this.masterVolume; }, dur * 1000);
+                }
+            }
+
+            startBGM(type) { 
+                this.init(); 
+                if (type === 'procedural') { this.stopBGM(); this.playProceduralBGM(); }
+                else if (type === 'file') { 
+                    this.stopBGM(false); 
+                    if (this.playlist.length > 0) { 
+                        if (this.audioEl.src && !this.audioEl.ended) this.audioEl.play(); 
+                        else this.playTrack(this.currentIndex); 
+                    } 
+                }
+                this.updateMiniPlayer();
+            }
+            stopBGM(clr = true) { 
+                if (this.isPlayingProcedural && this.bgmGain) { 
+                    const n = this.ctx.currentTime; this.bgmGain.gain.cancelScheduledValues(n); this.bgmGain.gain.setValueAtTime(this.bgmGain.gain.value, n); this.bgmGain.gain.exponentialRampToValueAtTime(0.001, n + 1); 
+                    setTimeout(() => { this.bgmNodes.forEach(x => { try { x.stop(); x.disconnect(); } catch(e){} }); this.bgmNodes = []; this.isPlayingProcedural = false; this.updateMiniPlayer(); }, 1000); 
+                }
+                if(this.audioEl) this.audioEl.pause();
+                this.updateMiniPlayer();
+            }
+            playProceduralBGM() {
+                if (this.isPlayingProcedural) return; this.isPlayingProcedural = true;
+                this.bgmGain = this.ctx.createGain(); 
+                const vol = this.masterVolume * 0.3;
+                this.bgmGain.gain.setValueAtTime(0, this.ctx.currentTime); 
+                this.bgmGain.gain.linearRampToValueAtTime(vol, this.ctx.currentTime + 3); 
+                this.bgmGain.connect(this.ctx.destination);
+                const bs = 2 * this.ctx.sampleRate, nb = this.ctx.createBuffer(1, bs, this.ctx.sampleRate), out = nb.getChannelData(0);
+                let l = 0; for(let i=0;i<bs;i++){ const w = Math.random()*2-1; out[i]=(l+(0.02*w))/1.02; l=out[i]; out[i]*=3.5; }
+                const s = this.ctx.createBufferSource(); s.buffer = nb; s.loop = true;
+                const f = this.ctx.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 400;
+                const osc = this.ctx.createOscillator(); osc.frequency.value = 0.15;
+                const g = this.ctx.createGain(); g.gain.value = 300;
+                osc.connect(g); g.connect(f.frequency); s.connect(f); f.connect(this.bgmGain); s.start(); osc.start(); this.bgmNodes.push(s, osc);
+                this.updateMiniPlayer();
+            }
+            playNotification(type, dur) { 
+                this.init(); this.duckBGM(dur); 
+                const n = this.ctx.currentTime; const d = Math.max(1, dur); 
+                if (type === 'crystal') [1046.5, 1318.5, 1567.9, 1975.5, 2349.3].forEach((f, i) => this.mkSnd(n + i*0.05, d, f, 'sine', f, 0.1/(i+1))); 
+                else if (type === 'bowl') { const b = 220; this.mkSnd(n, d*2, b, 'sine', b, 0.4); this.mkSnd(n, d*2, b*1.01, 'sine', b*1.01, 0.3); } 
+                else if (type === 'ripple') [349.2, 392, 440, 523.2, 587.3].forEach((f, i) => this.mkSnd(n + i*0.15, d, f, 'sine', f*0.98, 0.2)); 
+                else if (type === 'gong') { this.mkSnd(n, d*1.5, 110, 'sine', 110, 0.5); this.mkSnd(n, d*1.5, 164.8, 'sine', 164.8, 0.3); } 
+                else if (type === 'piano') { const f = 440; this.mkSnd(n, d, f, 'triangle', f, 0.3); this.mkSnd(n, d*0.8, f*2, 'sine', f*2, 0.1); } 
+                else if (type === 'bell') { const b = 880; this.mkSnd(n, d, b, 'sine', b, 0.3); this.mkSnd(n, d*0.7, b*2.02, 'sine', b*2.02, 0.1); } 
+            }
+            mkSnd(st, du, fr, ty, mf, vo) { 
+                const o = this.ctx.createOscillator(), g = this.ctx.createGain(); 
+                o.type = ty; o.frequency.setValueAtTime(fr, st); 
+                if (Math.abs(fr - mf) > 0.1) o.frequency.exponentialRampToValueAtTime(mf, st + du * 0.5); 
+                g.gain.setValueAtTime(0, st); g.gain.linearRampToValueAtTime(vo, st + 0.02); g.gain.exponentialRampToValueAtTime(0.001, st + du); 
+                o.connect(g); g.connect(this.ctx.destination); o.start(st); o.stop(st + du + 1); 
+            }
+        }
+        const audio = new SoundEngine();
+
+        // 1. 設定項目 & State
+        const PRESETS = { focus: 25, shortBreak: 5, longBreak: 15, targetSets: 5, longBreakEnabled: true, longBreakFreq: 4, bgmSource: 'none', bgmVolume: 0.5, soundType: 'crystal', soundDuration: 3, theme: 'horizon', desktopNotify: false };
+        const PHASE = { FOCUS: 'FOCUS', SHORT_BREAK: 'SHORT_BREAK', LONG_BREAK: 'LONG_BREAK', COMPLETED: 'COMPLETED' };
+        const STATUS = { STOPPED: 'STOPPED', RUNNING: 'RUNNING', PAUSED: 'PAUSED' };
+        
+        const appState = { config: { ...PRESETS }, status: STATUS.STOPPED, phase: PHASE.FOCUS, currentSet: 1, remainingTime: PRESETS.focus * 60, totalTime: PRESETS.focus * 60 };
+        let tempTheme = null;
         let currentPalette = PALETTES.FOCUS;
         let targetPalette = PALETTES.FOCUS;
         let transitionProgress = 1;
-        let layers = [];
+        let horizonLayers = [];
 
-        class Layer {
-            constructor(yOffset, colorIndex, speed, amplitude, noise) {
-                this.yOffset = yOffset;
-                this.colorIndex = colorIndex;
-                this.speed = speed;
-                this.amplitude = amplitude;
-                this.noise = noise;
-                this.offset = 0;
-                this.initPoints();
-            }
-            initPoints() {
-                this.points = [];
-                let x = 0;
-                while(x < width + 500) {
-                    const step = 50 + Math.random() * this.noise;
-                    const y = (height * (1 - this.yOffset)) - (Math.random() * this.amplitude);
-                    this.points.push({x, y});
-                    x += step;
-                }
-            }
-            update() {
-                this.offset -= this.speed;
-                if (this.points[0].x + this.offset < -200) {
-                    const first = this.points.shift();
-                    const last = this.points[this.points.length - 1];
-                    const step = 50 + Math.random() * this.noise;
-                    first.x = last.x + step;
-                    first.y = (height * (1 - this.yOffset)) - (Math.random() * this.amplitude);
-                    this.points.push(first);
-                }
-            }
-            draw(ctx, palette) {
-                ctx.fillStyle = palette.mountains[this.colorIndex];
-                ctx.beginPath();
-                ctx.moveTo(this.points[0].x + this.offset, height);
-                this.points.forEach(p => ctx.lineTo(p.x + this.offset, p.y));
-                ctx.lineTo(this.points[this.points.length - 1].x + this.offset, height);
-                ctx.fill();
-            }
+        // Sub Tools State
+        const subState = {
+            mode: 'timer', // 'timer' or 'stopwatch'
+            timer: { status: 'STOPPED', duration: 300, remaining: 300, sound: 'crystal' },
+            stopwatch: { status: 'STOPPED', startTime: 0, elapsed: 0, lastTick: 0 }
+        };
+
+        const savedConfig = persistence.loadConfig();
+        if (savedConfig) {
+            appState.config = { ...PRESETS, ...savedConfig }; 
+            appState.remainingTime = appState.config.focus * 60;
+            appState.totalTime = appState.config.focus * 60;
+            audio.setVolume(appState.config.bgmVolume);
+        }
+        const savedSubConfig = persistence.loadSubConfig();
+        if (savedSubConfig) {
+            subState.timer.sound = savedSubConfig.timerSound || 'crystal';
+            // Restore last timer input
+            if(savedSubConfig.timerMin !== undefined) document.getElementById('sub-input-min').value = savedSubConfig.timerMin;
+            if(savedSubConfig.timerSec !== undefined) document.getElementById('sub-input-sec').value = savedSubConfig.timerSec.toString().padStart(2, '0');
+            // Update duration
+            const m = parseInt(document.getElementById('sub-input-min').value)||0;
+            const s = parseInt(document.getElementById('sub-input-sec').value)||0;
+            subState.timer.duration = m*60 + s;
+            subState.timer.remaining = subState.timer.duration;
+            document.getElementById('sub-sound-type').value = subState.timer.sound;
         }
 
+        // Logic
+        function switchPhase() {
+            audio.playNotification(appState.config.soundType, appState.config.soundDuration);
+            if (appState.config.desktopNotify && Notification.permission === "granted") new Notification("Horizon Focus", { body: "Time's up!" });
+            if (appState.phase === PHASE.FOCUS) {
+                if (appState.currentSet >= appState.config.targetSets) { completeAll(); return; }
+                const isL = appState.config.longBreakEnabled && (appState.currentSet % appState.config.longBreakFreq === 0);
+                appState.phase = isL ? PHASE.LONG_BREAK : PHASE.SHORT_BREAK;
+                const d = (isL ? appState.config.longBreak : appState.config.shortBreak) * 60;
+                appState.remainingTime = d; appState.totalTime = d;
+            } else {
+                appState.currentSet++; appState.phase = PHASE.FOCUS; const d = appState.config.focus * 60; appState.remainingTime = d; appState.totalTime = d;
+            }
+            updateUI(); updateVisualTheme();
+        }
+        function completeAll() {
+            stopTimerLogic(); appState.phase = PHASE.COMPLETED; appState.remainingTime = 0; appState.totalTime = 1; updateUI(); updateVisualTheme();
+            if (appState.config.desktopNotify && Notification.permission === "granted") new Notification("Horizon Focus", { body: "All sets completed!" });
+        }
+        
+        // --- Worker Message Handler ---
+        timerWorker.onmessage = function(e) { 
+            const { event, id } = e.data;
+            if (event === 'tick') {
+                if (id === 'pomodoro') {
+                    if (appState.remainingTime > 0) { appState.remainingTime--; updateTimerDisplay(); } else switchPhase();
+                } else if (id === 'sub') {
+                    if (subState.timer.remaining > 0) {
+                        subState.timer.remaining--;
+                        updateSubTimerDisplay();
+                    } else {
+                        // Sub Timer Finished
+                        stopSubTimer();
+                        audio.playNotification(subState.timer.sound, 3);
+                        new Notification("Sub Timer", { body: "Time's up!" });
+                    }
+                } else if (id === 'stopwatch') {
+                    // Update stopwatch (1s tick is too slow for display, but good for drift check)
+                    // We rely on requestAnimationFrame for display, but this keeps it alive
+                }
+            }
+        };
+
+        // --- Main Timer Logic ---
+        function startTimerLogic() { if (appState.status === STATUS.RUNNING) return; audio.init(); if (appState.config.bgmSource !== 'none') audio.startBGM(appState.config.bgmSource); if (appState.phase === PHASE.COMPLETED) resetLogic(); appState.status = STATUS.RUNNING; timerWorker.postMessage({ cmd:'start', id:'pomodoro' }); updateUI(); }
+        function pauseTimerLogic() { appState.status = STATUS.PAUSED; timerWorker.postMessage({ cmd:'stop', id:'pomodoro' }); audio.stopBGM(); updateUI(); }
+        function stopTimerLogic() { appState.status = STATUS.STOPPED; timerWorker.postMessage({ cmd:'stop', id:'pomodoro' }); audio.stopBGM(); }
+        function resetLogic() { stopTimerLogic(); appState.phase = PHASE.FOCUS; appState.currentSet = 1; appState.remainingTime = appState.config.focus * 60; appState.totalTime = appState.config.focus * 60; updateUI(); updateVisualTheme(); }
+
+        // --- Sub Timer Logic ---
+        function startSubTimer() {
+            if (subState.timer.status === 'RUNNING' || subState.timer.remaining <= 0) return;
+            // Lock inputs
+            document.getElementById('sub-timer-inputs').style.pointerEvents = 'none';
+            document.getElementById('sub-timer-inputs').style.opacity = '0.5';
+            subState.timer.status = 'RUNNING';
+            timerWorker.postMessage({ cmd:'start', id:'sub' });
+            updateSubUI();
+        }
+        function pauseSubTimer() {
+            subState.timer.status = 'PAUSED';
+            timerWorker.postMessage({ cmd:'stop', id:'sub' });
+            updateSubUI();
+        }
+        function stopSubTimer() {
+            subState.timer.status = 'STOPPED';
+            timerWorker.postMessage({ cmd:'stop', id:'sub' });
+            updateSubUI();
+        }
+        function resetSubTimer() {
+            stopSubTimer();
+            // Unlock inputs
+            document.getElementById('sub-timer-inputs').style.pointerEvents = 'auto';
+            document.getElementById('sub-timer-inputs').style.opacity = '1';
+            const m = parseInt(document.getElementById('sub-input-min').value)||0;
+            const s = parseInt(document.getElementById('sub-input-sec').value)||0;
+            subState.timer.remaining = m*60 + s;
+            subState.timer.duration = subState.timer.remaining;
+            updateSubTimerDisplay();
+        }
+
+        // --- Stopwatch Logic ---
+        let swInterval = null;
+        function startStopwatch() {
+            if (subState.stopwatch.status === 'RUNNING') return;
+            subState.stopwatch.status = 'RUNNING';
+            subState.stopwatch.lastTick = Date.now();
+            timerWorker.postMessage({ cmd:'start', id:'stopwatch' }); // Keep alive
+            
+            // High freq update for display
+            swInterval = setInterval(() => {
+                const now = Date.now();
+                const delta = now - subState.stopwatch.lastTick;
+                subState.stopwatch.elapsed += delta;
+                subState.stopwatch.lastTick = now;
+                updateStopwatchDisplay();
+            }, 33);
+            updateSwUI();
+        }
+        function pauseStopwatch() {
+            subState.stopwatch.status = 'PAUSED';
+            clearInterval(swInterval);
+            timerWorker.postMessage({ cmd:'stop', id:'stopwatch' });
+            updateSwUI();
+        }
+        function resetStopwatch() {
+            pauseStopwatch();
+            subState.stopwatch.status = 'STOPPED';
+            subState.stopwatch.elapsed = 0;
+            updateStopwatchDisplay();
+            updateSwUI();
+        }
+
+        // --- UI Updates ---
+        const els = {
+            timerDisplay: document.getElementById('timer-display'), phaseLabel: document.getElementById('phase-label'), currentSet: document.getElementById('current-set'), targetSet: document.getElementById('target-set'), progressRing: document.getElementById('progress-ring'),
+            btnToggle: document.getElementById('btn-toggle'), iconPlay: document.getElementById('icon-play'), iconPause: document.getElementById('icon-pause'), btnReset: document.getElementById('btn-reset'), btnSettings: document.getElementById('btn-settings'),
+            modalSettings: document.getElementById('settings-modal'), modalContent: document.getElementById('settings-content'), modalConfirm: document.getElementById('confirm-modal'),
+            btnBgmSettings: document.getElementById('btn-bgm-settings'), modalBgm: document.getElementById('bgm-modal'),
+            inputs: { theme: document.getElementById('input-theme'), focus: document.getElementById('input-focus'), short: document.getElementById('input-short'), long: document.getElementById('input-long'), target: document.getElementById('input-target'), freq: document.getElementById('input-freq'), longEnabled: document.getElementById('input-long-enabled'), longContainer: document.getElementById('long-break-container'), desktopNotify: document.getElementById('input-desktop-notify'), bgmSource: document.getElementById('input-bgm-source'), fileContainer: document.getElementById('file-upload-container'), audioFile: document.getElementById('input-audio-file'), soundType: document.getElementById('input-sound-type'), soundDuration: document.getElementById('input-sound-duration'), soundDurationDisplay: document.getElementById('display-sound-duration'), bgmVolume: document.getElementById('input-bgm-volume'), bgmVolumeDisplay: document.getElementById('display-bgm-volume') },
+            btnSave: document.getElementById('btn-save-settings'), btnCancel: document.getElementById('btn-cancel-settings'), btnYesReset: document.getElementById('btn-yes-reset'), btnNoReset: document.getElementById('btn-no-reset'), btnTestSound: document.getElementById('btn-test-sound')
+        };
+        const circleRadius = 120, circleCircumference = 2 * Math.PI * circleRadius;
+        
+        function updateTimerDisplay() {
+            const m = Math.floor(appState.remainingTime / 60), s = appState.remainingTime % 60;
+            els.timerDisplay.textContent = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+            document.title = `${els.timerDisplay.textContent} - Horizon Focus`;
+            const p = appState.remainingTime / appState.totalTime;
+            els.progressRing.style.strokeDashoffset = circleCircumference * (1 - p);
+        }
+        function updateSubTimerDisplay() {
+            const m = Math.floor(subState.timer.remaining / 60), s = subState.timer.remaining % 60;
+            document.getElementById('sub-timer-display').textContent = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+        }
+        function updateStopwatchDisplay() {
+            const totalMs = subState.stopwatch.elapsed;
+            const ms = Math.floor((totalMs % 1000) / 10);
+            const s = Math.floor((totalMs / 1000) % 60);
+            const m = Math.floor(totalMs / 60000);
+            document.getElementById('stopwatch-display').textContent = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+            document.getElementById('stopwatch-ms').textContent = `.${ms.toString().padStart(2,'0')}`;
+        }
+
+        function updateUI() {
+            updateTimerDisplay(); els.currentSet.textContent = appState.currentSet; els.targetSet.textContent = appState.config.targetSets;
+            const pm = { [PHASE.FOCUS]: "FOCUS TIME", [PHASE.SHORT_BREAK]: "SHORT BREAK", [PHASE.LONG_BREAK]: "LONG BREAK", [PHASE.COMPLETED]: "ALL COMPLETED" };
+            els.phaseLabel.textContent = pm[appState.phase];
+            if (appState.status === STATUS.RUNNING) { els.iconPlay.classList.add('hidden'); els.iconPause.classList.remove('hidden'); } else { els.iconPlay.classList.remove('hidden'); els.iconPause.classList.add('hidden'); }
+            audio.updateMiniPlayer();
+        }
+
+        function updateSubUI() {
+            const play = document.getElementById('icon-sub-play');
+            const pause = document.getElementById('icon-sub-pause');
+            if(subState.timer.status === 'RUNNING') { play.classList.add('hidden'); pause.classList.remove('hidden'); }
+            else { play.classList.remove('hidden'); pause.classList.add('hidden'); }
+        }
+        function updateSwUI() {
+            const play = document.getElementById('icon-sw-play');
+            const pause = document.getElementById('icon-sw-pause');
+            if(subState.stopwatch.status === 'RUNNING') { play.classList.add('hidden'); pause.classList.remove('hidden'); }
+            else { play.classList.remove('hidden'); pause.classList.add('hidden'); }
+        }
+
+        // Initialize Listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            const on = (el, ev, fn) => { if(el) el.addEventListener(ev, fn); };
+            const get = (id) => document.getElementById(id);
+            const smartInputs = document.querySelectorAll('.smart-input');
+
+            // Smart Inputs
+            smartInputs.forEach(input => {
+                on(input, 'focus', function() { this.dataset.original = this.value; this.value = ''; });
+                on(input, 'blur', function() { if (this.value.trim() === '') { this.value = this.dataset.original; } else { validateInputsRealtime(); } });
+                on(input, 'input', function() { this.value = this.value.replace(/[^0-9]/g, ''); });
+            });
+
+            // Sub Timer Inputs
+            const updateSubTime = () => {
+                if(subState.timer.status !== 'STOPPED') return;
+                const m = parseInt(get('sub-input-min').value)||0;
+                const s = parseInt(get('sub-input-sec').value)||0;
+                subState.timer.duration = m*60 + s;
+                subState.timer.remaining = subState.timer.duration;
+                updateSubTimerDisplay();
+                // Save
+                persistence.saveSubConfig({
+                    timerMin: m, timerSec: s, timerSound: subState.timer.sound
+                });
+            };
+            on(get('sub-input-min'), 'change', updateSubTime);
+            on(get('sub-input-sec'), 'change', updateSubTime);
+
+            // Sub Timer Sound
+            on(get('btn-sub-settings'), 'click', (e) => {
+                e.stopPropagation();
+                get('sub-settings-popover').classList.toggle('hidden');
+            });
+            on(get('btn-close-sub-settings'), 'click', () => get('sub-settings-popover').classList.add('hidden'));
+            on(get('sub-sound-type'), 'change', (e) => {
+                subState.timer.sound = e.target.value;
+                audio.playNotification(e.target.value, 2);
+                updateSubTime(); // Save config
+            });
+
+            // Sub Timer Controls
+            on(get('btn-sub-toggle'), 'click', () => subState.timer.status === 'RUNNING' ? pauseSubTimer() : startSubTimer());
+            on(get('btn-sub-reset'), 'click', resetSubTimer);
+
+            // Stopwatch Controls
+            on(get('btn-sw-toggle'), 'click', () => subState.stopwatch.status === 'RUNNING' ? pauseStopwatch() : startStopwatch());
+            on(get('btn-sw-reset'), 'click', resetStopwatch);
+
+            // Tab Switcher
+            on(get('tab-timer'), 'click', () => {
+                get('tab-timer').classList.add('active'); get('tab-stopwatch').classList.remove('active');
+                get('view-sub-timer').classList.remove('hidden'); get('view-stopwatch').classList.add('hidden');
+            });
+            on(get('tab-stopwatch'), 'click', () => {
+                get('tab-stopwatch').classList.add('active'); get('tab-timer').classList.remove('active');
+                get('view-stopwatch').classList.remove('hidden'); get('view-sub-timer').classList.add('hidden');
+            });
+
+            // Input Validation Helper
+            const validateInputsRealtime = () => {
+                if(!els.inputs.target || !els.inputs.freq) return;
+                const t = els.inputs.target; const f = els.inputs.freq;
+                let tv = parseInt(t.value);
+                if (!isNaN(tv) && tv < 2) { tv = 2; t.value = 2; }
+                if (!isNaN(tv)) {
+                    const maxF = Math.max(1, tv - 1);
+                    f.max = maxF; 
+                    let fv = parseInt(f.value);
+                    if (!isNaN(fv) && fv > maxF) f.value = maxF;
+                    if (!isNaN(fv) && fv < 1) f.value = 1;
+                }
+            };
+            on(els.inputs.target, 'input', validateInputsRealtime);
+            on(els.inputs.target, 'blur', validateInputsRealtime);
+
+            // Button Events
+            on(els.btnToggle, 'click', () => appState.status === STATUS.RUNNING ? pauseTimerLogic() : startTimerLogic());
+            on(els.btnReset, 'click', resetLogic);
+            on(els.btnSettings, 'click', () => { if (appState.status === STATUS.RUNNING || appState.status === STATUS.PAUSED) { if (appState.currentSet > 1 || appState.remainingTime < appState.config.focus * 60) { els.modalConfirm.classList.remove('hidden'); return; } } openSettings(); });
+            on(els.btnYesReset, 'click', () => { resetLogic(); els.modalConfirm.classList.add('hidden'); openSettings(); });
+            on(els.btnNoReset, 'click', () => els.modalConfirm.classList.add('hidden'));
+
+            // BGM Modal Events
+            on(els.btnBgmSettings, 'click', () => {
+                els.inputs.bgmSource.value = appState.config.bgmSource;
+                els.inputs.bgmVolume.value = appState.config.bgmVolume;
+                els.inputs.bgmVolumeDisplay.textContent = Math.round(appState.config.bgmVolume * 100);
+                els.inputs.fileContainer.classList.toggle('hidden', appState.config.bgmSource !== 'file');
+                els.modalBgm.classList.remove('hidden');
+                setTimeout(() => els.modalBgm.classList.remove('opacity-0'), 10);
+                audio.updatePlaylistUI();
+            });
+            on(get('btn-close-bgm'), 'click', () => {
+                // Save BGM settings on close
+                appState.config.bgmSource = els.inputs.bgmSource.value;
+                appState.config.bgmVolume = parseFloat(els.inputs.bgmVolume.value);
+                persistence.saveConfig(appState.config);
+                
+                els.modalBgm.classList.add('opacity-0');
+                setTimeout(() => els.modalBgm.classList.add('hidden'), 300);
+                audio.updateMiniPlayer();
+            });
+
+            // Settings Inputs
+            on(els.inputs.bgmSource, 'change', (e) => {
+                if (els.inputs.fileContainer) {
+                    els.inputs.fileContainer.classList.toggle('hidden', e.target.value !== 'file');
+                }
+                appState.config.bgmSource = e.target.value;
+                if(appState.status === STATUS.RUNNING) audio.startBGM(e.target.value);
+            });
+            on(els.inputs.bgmVolume, 'input', (e) => {
+                const vol = parseFloat(e.target.value);
+                els.inputs.bgmVolumeDisplay.textContent = Math.round(vol * 100);
+                audio.setVolume(vol);
+                appState.config.bgmVolume = vol;
+            });
+            
+            on(els.inputs.soundDuration, 'input', (e) => els.inputs.soundDurationDisplay.textContent = e.target.value);
+            on(els.btnTestSound, 'click', () => audio.playNotification(els.inputs.soundType.value, parseFloat(els.inputs.soundDuration.value)));
+            on(els.inputs.desktopNotify, 'change', (e) => { if(e.target.checked && "Notification" in window) Notification.requestPermission(); });
+            on(els.inputs.theme, 'change', (e) => { tempTheme = e.target.value; document.body.setAttribute('data-theme', tempTheme); updateVisualTheme(); });
+
+            on(els.btnSave, 'click', () => {
+                validateInputsRealtime();
+                const nc = { 
+                    theme: els.inputs.theme.value, 
+                    focus: parseInt(els.inputs.focus.value)||PRESETS.focus, 
+                    shortBreak: parseInt(els.inputs.short.value)||PRESETS.shortBreak, 
+                    longBreak: parseInt(els.inputs.long.value)||PRESETS.longBreak, 
+                    targetSets: parseInt(els.inputs.target.value)||PRESETS.targetSets, 
+                    longBreakFreq: parseInt(els.inputs.freq.value)||PRESETS.longBreakFreq, 
+                    longBreakEnabled: els.inputs.longEnabled.checked, 
+                    desktopNotify: els.inputs.desktopNotify.checked, 
+                    bgmSource: appState.config.bgmSource, 
+                    bgmVolume: appState.config.bgmVolume,
+                    soundType: els.inputs.soundType.value, 
+                    soundDuration: parseFloat(els.inputs.soundDuration.value) 
+                };
+                appState.config = nc;
+                persistence.saveConfig(nc);
+                tempTheme = null; document.body.setAttribute('data-theme', appState.config.theme); resize(); 
+                if (appState.status === STATUS.STOPPED) { appState.remainingTime = appState.config.focus * 60; appState.totalTime = appState.config.focus * 60; updateTimerDisplay(); }
+                updateUI(); closeSettings();
+            });
+            on(els.btnCancel, 'click', () => { if (tempTheme && tempTheme !== appState.config.theme) { document.body.setAttribute('data-theme', appState.config.theme); updateVisualTheme(); } tempTheme = null; closeSettings(); });
+            on(els.inputs.longEnabled, 'change', toggleLongBreakContainer);
+
+            // BGM / Playlist Events
+            on(get('btn-mini-play'), 'click', (e) => { e.stopPropagation(); audio.togglePlay(); });
+            on(get('btn-mini-list'), 'click', (e) => { 
+                e.stopPropagation(); 
+                els.btnBgmSettings.click(); // Open main BGM modal
+            });
+            on(get('btn-close-playlist'), 'click', () => { // Legacy cleanup if any
+                 const m = document.getElementById('playlist-modal'); if(m) m.classList.add('hidden');
+            });
+            on(get('input-popup-audio'), 'change', (e) => audio.addFiles(e.target.files));
+            on(get('btn-popup-repeat'), 'click', () => audio.toggleRepeatMode());
+
+            // Init Sub Timer
+            updateSubTimerDisplay();
+        });
+
+        function openSettings() {
+            tempTheme = appState.config.theme; const c = appState.config;
+            els.inputs.theme.value = c.theme; els.inputs.focus.value = c.focus; els.inputs.short.value = c.shortBreak; els.inputs.long.value = c.longBreak; els.inputs.target.value = c.targetSets; els.inputs.freq.value = c.longBreakFreq; els.inputs.longEnabled.checked = c.longBreakEnabled; els.inputs.desktopNotify.checked = c.desktopNotify; els.inputs.soundType.value = c.soundType; els.inputs.soundDuration.value = c.soundDuration; els.inputs.soundDurationDisplay.textContent = c.soundDuration;
+            toggleLongBreakContainer();
+            const t = els.inputs.target; const f = els.inputs.freq;
+            if(t && f) {
+                 let tv = parseInt(t.value);
+                 if (!isNaN(tv)) f.max = Math.max(1, tv - 1);
+            }
+            if (els.modalSettings) {
+                els.modalSettings.classList.remove('hidden');
+                setTimeout(() => { 
+                    if(els.modalSettings) els.modalSettings.classList.remove('opacity-0'); 
+                    if(els.modalContent) els.modalContent.classList.remove('scale-95'); 
+                }, 10);
+            }
+        }
+        function closeSettings() { els.modalSettings.classList.add('opacity-0'); els.modalContent.classList.add('scale-95'); setTimeout(() => els.modalSettings.classList.add('hidden'), 300); }
+        function toggleLongBreakContainer() { 
+            if (!els.inputs.longEnabled || !els.inputs.longContainer) return;
+            const e = els.inputs.longEnabled.checked; 
+            els.inputs.longContainer.style.maxHeight = e ? '200px' : '0'; 
+            els.inputs.longContainer.style.opacity = e ? '1' : '0'; 
+            els.inputs.longContainer.style.pointerEvents = e ? 'auto' : 'none'; 
+        }
+
+        // --- Visual Engine ---
+        let width, height;
+        const canvas = document.getElementById('bgCanvas');
+        const ctx = canvas.getContext('2d');
+
         function resize() {
-            width = window.innerWidth;
-            height = window.innerHeight;
-            canvas.width = width;
-            canvas.height = height;
-            layers = [
-                new Layer(0.6, 0, 0.2, height * 0.3, 200),
-                new Layer(0.4, 1, 0.4, height * 0.2, 150),
-                new Layer(0.2, 2, 0.8, height * 0.15, 100),
-                new Layer(0.0, 3, 1.2, height * 0.1, 50)
-            ];
+            width = window.innerWidth; height = window.innerHeight; canvas.width = width; canvas.height = height;
+            horizonLayers = [ new Layer(0.6, 0, 0.2, height * 0.3, 200), new Layer(0.4, 1, 0.4, height * 0.2, 150), new Layer(0.2, 2, 0.8, height * 0.15, 100), new Layer(0.0, 3, 1.2, height * 0.1, 50) ];
         }
         window.addEventListener('resize', resize);
         resize();
 
-        function lerpColor(a, b, amount) { 
-            const ah = parseInt(a.replace(/#/g,''),16), ar=ah>>16, ag=ah>>8&0xff, ab=ah&0xff;
-            const bh = parseInt(b.replace(/#/g,''),16), br=bh>>16, bg=bh>>8&0xff, bb=bh&0xff;
-            const rr=ar+amount*(br-ar), rg=ag+amount*(bg-ag), rb=ab+amount*(bb-ab);
+        function lerpColor(a, b, amt) {
+            const ah = parseInt(a.replace(/#/g,''),16), bh = parseInt(b.replace(/#/g,''),16);
+            const ar = ah>>16, ag = ah>>8&0xff, ab = ah&0xff; const br = bh>>16, bg = bh>>8&0xff, bb = bh&0xff;
+            const rr = ar+amt*(br-ar), rg = ag+amt*(bg-ag), rb = ab+amt*(bb-ab);
             return '#' + ((1<<24)+(rr<<16)+(rg<<8)+rb|0).toString(16).slice(1);
         }
-
         function getInterpolatedPalette() {
             if (transitionProgress >= 1) return targetPalette;
             const p = {};
@@ -883,46 +1166,78 @@
             p.mountains = currentPalette.mountains.map((c, i) => lerpColor(c, targetPalette.mountains[i], transitionProgress));
             return p;
         }
-
         function updateVisualTheme() {
-            currentPalette = getInterpolatedPalette();
-            transitionProgress = 0;
-            switch (appState.phase) {
-                case PHASE.FOCUS: targetPalette = PALETTES.FOCUS; break;
-                case PHASE.SHORT_BREAK: targetPalette = PALETTES.SHORT_BREAK; break;
-                case PHASE.LONG_BREAK: targetPalette = PALETTES.LONG_BREAK; break;
-                case PHASE.COMPLETED: targetPalette = PALETTES.COMPLETED; break;
+            const activeTheme = tempTheme || appState.config.theme;
+            if (activeTheme === 'horizon') {
+                currentPalette = getInterpolatedPalette(); transitionProgress = 0;
+                const pm = { [PHASE.FOCUS]: PALETTES.FOCUS, [PHASE.SHORT_BREAK]: PALETTES.SHORT_BREAK, [PHASE.LONG_BREAK]: PALETTES.LONG_BREAK, [PHASE.COMPLETED]: PALETTES.COMPLETED };
+                targetPalette = pm[appState.phase];
             }
+        }
+
+        function drawHorizon() {
+            if (transitionProgress < 1) transitionProgress += 0.005;
+            const ap = getInterpolatedPalette();
+            const g = ctx.createLinearGradient(0, 0, 0, height); g.addColorStop(0, ap.skyTop); g.addColorStop(1, ap.skyBottom);
+            ctx.fillStyle = g; ctx.fillRect(0, 0, width, height);
+            horizonLayers.forEach(l => { if(appState.status === STATUS.RUNNING) l.update(width, height); l.draw(ctx, ap, width, height); });
+        }
+
+        function drawSunset() {
+            const setIdx = appState.currentSet - 1;
+            const setProg = appState.totalTime > 0 ? (1 - appState.remainingTime / appState.totalTime) : 1;
+            const totalProg = Math.min(1, (setIdx + setProg) / appState.config.targetSets);
+
+            let c1, c2;
+            if (totalProg < 0.4) {
+                const t = totalProg / 0.4; c1 = lerpColor('#38bdf8', '#f43f5e', t); c2 = lerpColor('#bae6fd', '#fcd34d', t);
+            } else if (totalProg < 0.7) {
+                const t = (totalProg - 0.4) / 0.3; c1 = lerpColor('#f43f5e', '#4c1d95', t); c2 = lerpColor('#fcd34d', '#be185d', t);
+            } else {
+                const t = (totalProg - 0.7) / 0.3; c1 = lerpColor('#4c1d95', '#0f172a', t); c2 = lerpColor('#be185d', '#1e1b4b', t); 
+            }
+
+            const g = ctx.createLinearGradient(0, 0, 0, height); g.addColorStop(0, c1); g.addColorStop(1, c2);
+            ctx.fillStyle = g; ctx.fillRect(0, 0, width, height);
+
+            if (totalProg > 0.6) {
+                const starOp = Math.min(1, (totalProg - 0.6) * 3);
+                ctx.fillStyle = `rgba(255,255,255,${starOp})`;
+                for(let i=0; i<60; i++) { const x = (i * 9876) % width; const y = (i * 5432) % (height*0.7); const s = (i % 2) + 1; ctx.beginPath(); ctx.arc(x, y, s, 0, Math.PI*2); ctx.fill(); }
+            }
+
+            if (totalProg < 0.5) {
+                const sunY = height * 0.2 + (height * 0.6 * (totalProg / 0.5));
+                ctx.fillStyle = '#fffbeb'; ctx.shadowBlur = 20; ctx.shadowColor = 'rgba(255,255,255,0.5)';
+                ctx.beginPath(); ctx.arc(width*0.5, sunY, 40, 0, Math.PI*2); ctx.fill();
+            } else {
+                const moonProg = (totalProg - 0.5) / 0.5; const moonY = height * 0.8 - (height * 0.6 * moonProg);
+                ctx.fillStyle = '#fef3c7'; ctx.shadowBlur = 15; ctx.shadowColor = 'rgba(254, 243, 199, 0.3)';
+                ctx.beginPath(); ctx.arc(width*0.5, moonY, 30, 0, Math.PI*2); ctx.fill();
+                ctx.fillStyle = 'rgba(0,0,0,0.1)'; ctx.beginPath(); ctx.arc(width*0.5+8, moonY-5, 8, 0, Math.PI*2); ctx.fill();
+            }
+            ctx.shadowBlur = 0;
+
+            const drawPolyMount = (yBase, color, points) => {
+                ctx.fillStyle = color; ctx.beginPath(); ctx.moveTo(0, height); ctx.lineTo(0, yBase);
+                points.forEach(p => ctx.lineTo(p.x, yBase - p.h));
+                ctx.lineTo(width, yBase); ctx.lineTo(width, height); ctx.fill();
+            };
+            drawPolyMount(height, 'rgba(0,0,0,0.2)', [{x: width*0.2, h: 150}, {x: width*0.5, h: 80}, {x: width*0.8, h: 200}]);
+            drawPolyMount(height, 'rgba(0,0,0,0.4)', [{x: 0, h:50}, {x: width*0.3, h: 120}, {x: width*0.7, h: 100}, {x: width, h: 40}]);
+            drawPolyMount(height, 'rgba(0,0,0,0.6)', [{x: 0, h:20}, {x: width*0.1, h: 60}, {x: width*0.4, h: 30}, {x: width*0.6, h: 80}, {x: width*0.9, h: 40}, {x: width, h: 10}]);
         }
 
         function animate() {
-            if (appState.config.theme !== 'horizon') {
-                requestAnimationFrame(animate);
-                return;
-            }
-
+            const activeTheme = tempTheme || appState.config.theme;
             ctx.clearRect(0, 0, width, height);
-            if (transitionProgress < 1) transitionProgress += 0.005;
-            
-            const activePalette = getInterpolatedPalette();
-            const grad = ctx.createLinearGradient(0, 0, 0, height);
-            grad.addColorStop(0, activePalette.skyTop);
-            grad.addColorStop(1, activePalette.skyBottom);
-            ctx.fillStyle = grad;
-            ctx.fillRect(0, 0, width, height);
-
-            layers.forEach(layer => {
-                if (appState.status === STATUS.RUNNING) layer.update();
-                layer.draw(ctx, activePalette);
-            });
+            if (activeTheme === 'horizon') drawHorizon();
+            else if (activeTheme === 'sunset') drawSunset();
             requestAnimationFrame(animate);
         }
         animate();
-        
-        // Initial set
         document.body.setAttribute('data-theme', 'horizon');
         updateUI();
-
     </script>
 </body>
 </html>
