@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ポモドーロタイマー</title>
     <meta name="description" content="シンプルで美しいポモドーロタイマー。">
+    <meta name="google-site-verification" content="K_Ziqndl6tdPbfH96b8HzlfWEFPk9MkAWzOQ8VAzQhA" />
     <!-- PWA Settings -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#222222">
@@ -552,6 +553,7 @@
                 const { cmd, id } = e.data;
                 if (cmd === 'start') {
                     if (timers[id]) clearInterval(timers[id]);
+                    // Main tick interval
                     timers[id] = setInterval(() => postMessage({ event: 'tick', id: id }), 1000);
                 } else if (cmd === 'stop') {
                     if (timers[id]) clearInterval(timers[id]);
@@ -561,44 +563,50 @@
         `], { type: 'application/javascript' });
         const timerWorker = new Worker(URL.createObjectURL(workerBlob));
 
-        // --- Data Persistence ---
+        // --- Data Persistence (LocalStorage & IndexedDB) ---
         const DB_CONFIG = { name: 'HorizonFocusDB', version: 1, store: 'playlist' };
+        
         class PersistenceManager {
-            constructor() { this.db = null; this.initDB(); }
-            saveConfig(c) { try { localStorage.setItem('horizon_config', JSON.stringify(c)); } catch(e) {} }
+            constructor() {
+                this.db = null;
+                this.initDB();
+            }
+            saveConfig(config) { try { localStorage.setItem('horizon_config', JSON.stringify(config)); } catch(e) {} }
             loadConfig() { try { return JSON.parse(localStorage.getItem('horizon_config')); } catch(e) { return null; } }
-            saveSubConfig(c) { try { localStorage.setItem('horizon_sub_config', JSON.stringify(c)); } catch(e) {} }
+            // New: Save SubTool Config
+            saveSubConfig(config) { try { localStorage.setItem('horizon_sub_config', JSON.stringify(config)); } catch(e) {} }
             loadSubConfig() { try { return JSON.parse(localStorage.getItem('horizon_sub_config')); } catch(e) { return null; } }
+
             initDB() {
-                const r = indexedDB.open(DB_CONFIG.name, DB_CONFIG.version);
-                r.onupgradeneeded = (e) => {
+                const request = indexedDB.open(DB_CONFIG.name, DB_CONFIG.version);
+                request.onupgradeneeded = (e) => {
                     const db = e.target.result;
                     if (!db.objectStoreNames.contains(DB_CONFIG.store)) db.createObjectStore(DB_CONFIG.store, { keyPath: 'id', autoIncrement: true });
                 };
-                r.onsuccess = (e) => { this.db = e.target.result; audio.loadPlaylistFromDB(); };
+                request.onsuccess = (e) => { this.db = e.target.result; audio.loadPlaylistFromDB(); };
             }
-            async saveFile(f) {
+            async saveFile(file) {
                 if (!this.db) return;
-                return new Promise((res) => {
+                return new Promise((resolve) => {
                     const tx = this.db.transaction([DB_CONFIG.store], 'readwrite');
-                    tx.objectStore(DB_CONFIG.store).add({ name: f.name, type: f.type, blob: f });
-                    tx.oncomplete = () => res();
+                    tx.objectStore(DB_CONFIG.store).add({ name: file.name, type: file.type, blob: file });
+                    tx.oncomplete = () => resolve();
                 });
             }
             async deleteFile(id) {
                 if (!this.db) return;
-                return new Promise((res) => {
+                return new Promise((resolve) => {
                     const tx = this.db.transaction([DB_CONFIG.store], 'readwrite');
                     tx.objectStore(DB_CONFIG.store).delete(id);
-                    tx.oncomplete = () => res();
+                    tx.oncomplete = () => resolve();
                 });
             }
             async getAllFiles() {
                 if (!this.db) return [];
-                return new Promise((res) => {
+                return new Promise((resolve) => {
                     const tx = this.db.transaction([DB_CONFIG.store], 'readonly');
                     const req = tx.objectStore(DB_CONFIG.store).getAll();
-                    req.onsuccess = () => res(req.result);
+                    req.onsuccess = () => resolve(req.result);
                 });
             }
         }
@@ -1067,22 +1075,13 @@
                 on(input, 'input', function() { this.value = this.value.replace(/[^0-9]/g, ''); });
             });
 
-            // Sub Timer Inputs (Restore from config)
-             if (savedSubConfig) {
-                if(savedSubConfig.timerMin !== undefined && get('sub-input-min')) get('sub-input-min').value = savedSubConfig.timerMin;
-                if(savedSubConfig.timerSec !== undefined && get('sub-input-sec')) get('sub-input-sec').value = savedSubConfig.timerSec.toString().padStart(2, '0');
-                if(get('sub-sound-type')) get('sub-sound-type').value = subState.timer.sound;
-                // Recalc duration
-                const m = parseInt(get('sub-input-min').value)||0;
-                const s = parseInt(get('sub-input-sec').value)||0;
-                subState.timer.duration = m*60 + s;
-                subState.timer.remaining = subState.timer.duration;
-            }
-
+            // Sub Timer Inputs
             const updateSubTime = () => {
                 if(subState.timer.status !== 'STOPPED') return;
-                const m = parseInt(get('sub-input-min').value)||0;
-                const s = parseInt(get('sub-input-sec').value)||0;
+                const minEl = get('sub-input-min');
+                const secEl = get('sub-input-sec');
+                const m = minEl ? (parseInt(minEl.value)||0) : 5;
+                const s = secEl ? (parseInt(secEl.value)||0) : 0;
                 subState.timer.duration = m*60 + s;
                 subState.timer.remaining = subState.timer.duration;
                 updateSubTimerDisplay();
@@ -1258,6 +1257,9 @@
                 e.stopPropagation(); 
                 if(els.btnBgmSettings) els.btnBgmSettings.click(); 
             });
+            on(get('btn-close-playlist'), 'click', () => { // Legacy cleanup if any
+                 const m = document.getElementById('playlist-modal'); if(m) m.classList.add('hidden');
+            });
             on(get('input-popup-audio'), 'change', (e) => audio.addFiles(e.target.files));
             on(get('btn-popup-repeat'), 'click', () => audio.toggleRepeatMode());
 
@@ -1267,17 +1269,7 @@
 
         function openSettings() {
             tempTheme = appState.config.theme; const c = appState.config;
-            if(els.inputs.theme) els.inputs.theme.value = c.theme; 
-            if(els.inputs.focus) els.inputs.focus.value = c.focus; 
-            if(els.inputs.short) els.inputs.short.value = c.shortBreak; 
-            if(els.inputs.long) els.inputs.long.value = c.longBreak; 
-            if(els.inputs.target) els.inputs.target.value = c.targetSets; 
-            if(els.inputs.freq) els.inputs.freq.value = c.longBreakFreq; 
-            if(els.inputs.longEnabled) els.inputs.longEnabled.checked = c.longBreakEnabled; 
-            if(els.inputs.desktopNotify) els.inputs.desktopNotify.checked = c.desktopNotify; 
-            if(els.inputs.soundType) els.inputs.soundType.value = c.soundType; 
-            if(els.inputs.soundDuration) els.inputs.soundDuration.value = c.soundDuration; 
-            if(els.inputs.soundDurationDisplay) els.inputs.soundDurationDisplay.textContent = c.soundDuration;
+            els.inputs.theme.value = c.theme; els.inputs.focus.value = c.focus; els.inputs.short.value = c.shortBreak; els.inputs.long.value = c.longBreak; els.inputs.target.value = c.targetSets; els.inputs.freq.value = c.longBreakFreq; els.inputs.longEnabled.checked = c.longBreakEnabled; els.inputs.desktopNotify.checked = c.desktopNotify; els.inputs.soundType.value = c.soundType; els.inputs.soundDuration.value = c.soundDuration; els.inputs.soundDurationDisplay.textContent = c.soundDuration;
             toggleLongBreakContainer();
             const t = els.inputs.target; const f = els.inputs.freq;
             if(t && f) {
@@ -1292,11 +1284,7 @@
                 }, 10);
             }
         }
-        function closeSettings() { 
-            if(els.modalSettings) els.modalSettings.classList.add('opacity-0'); 
-            if(els.modalContent) els.modalContent.classList.add('scale-95'); 
-            setTimeout(() => { if(els.modalSettings) els.modalSettings.classList.add('hidden'); }, 300); 
-        }
+        function closeSettings() { els.modalSettings.classList.add('opacity-0'); els.modalContent.classList.add('scale-95'); setTimeout(() => els.modalSettings.classList.add('hidden'), 300); }
         function toggleLongBreakContainer() { 
             if (!els.inputs.longEnabled || !els.inputs.longContainer) return;
             const e = els.inputs.longEnabled.checked; 
